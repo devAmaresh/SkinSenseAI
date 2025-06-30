@@ -1,0 +1,13 @@
+fastapi-backend/
+│
+├── app/
+│   ├── core/
+│   │   └── config.py
+│   ├── models/
+│   │   └── product.py
+│   ├── routers/
+│   │   └── product.py
+│   ├── main.py
+│   └── services/
+│       └── product_service.py
+└── .env
