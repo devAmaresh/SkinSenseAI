@@ -24,7 +24,6 @@ export default function ForgotPasswordScreen({ navigation }) {
     }
 
     setIsLoading(true);
-    // Simulate API call
     setTimeout(() => {
       setIsLoading(false);
       Alert.alert(
@@ -39,7 +38,7 @@ export default function ForgotPasswordScreen({ navigation }) {
     <SafeAreaView className="flex-1">
       <StatusBar style="light" />
       <LinearGradient
-        colors={['#667eea', '#764ba2']}
+        colors={['#000000', '#1a1a1a', '#000000']}
         className="flex-1"
       >
         <KeyboardAvoidingView
@@ -49,7 +48,12 @@ export default function ForgotPasswordScreen({ navigation }) {
           {/* Back Button */}
           <TouchableOpacity
             onPress={() => navigation.goBack()}
-            className="absolute top-12 left-6 z-10 w-10 h-10 rounded-full bg-white/20 items-center justify-center"
+            className="absolute top-12 left-6 z-10 w-12 h-12 rounded-full items-center justify-center"
+            style={{
+              backgroundColor: 'rgba(255, 255, 255, 0.05)',
+              borderWidth: 1,
+              borderColor: 'rgba(255, 255, 255, 0.1)',
+            }}
           >
             <Ionicons name="arrow-back" size={24} color="white" />
           </TouchableOpacity>
@@ -57,13 +61,25 @@ export default function ForgotPasswordScreen({ navigation }) {
           <View className="flex-1 justify-center px-8">
             {/* Header */}
             <View className="items-center mb-10">
-              <View className="w-20 h-20 rounded-full bg-white/20 items-center justify-center mb-6">
-                <Ionicons name="lock-closed-outline" size={40} color="white" />
+              <View 
+                className="w-24 h-24 rounded-full items-center justify-center mb-6"
+                style={{
+                  backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                  borderWidth: 1,
+                  borderColor: 'rgba(255, 255, 255, 0.1)',
+                }}
+              >
+                <LinearGradient
+                  colors={['#8000ff', '#0080ff']}
+                  className="w-12 h-12 rounded-full items-center justify-center"
+                >
+                  <Ionicons name="lock-closed" size={24} color="#000" />
+                </LinearGradient>
               </View>
               <Text className="text-4xl font-bold text-white text-center mb-2">
                 Forgot Password?
               </Text>
-              <Text className="text-white/80 text-center text-lg leading-relaxed">
+              <Text className="text-gray-300 text-center text-lg leading-relaxed">
                 Don't worry! Enter your email address and we'll send you a reset link.
               </Text>
             </View>
@@ -72,14 +88,21 @@ export default function ForgotPasswordScreen({ navigation }) {
             <View className="space-y-6">
               {/* Email Input */}
               <View className="space-y-2">
-                <Text className="text-white/90 text-sm font-medium ml-1">
+                <Text className="text-gray-300 text-sm font-medium ml-1">
                   Email Address
                 </Text>
-                <View className="bg-white/10 rounded-2xl px-4 py-4 border border-white/20">
+                <View 
+                  className="rounded-2xl px-4 py-4"
+                  style={{
+                    backgroundColor: 'rgba(255, 255, 255, 0.03)',
+                    borderWidth: 1,
+                    borderColor: 'rgba(255, 255, 255, 0.08)',
+                  }}
+                >
                   <TextInput
                     className="text-white text-base"
                     placeholder="Enter your email"
-                    placeholderTextColor="rgba(255,255,255,0.6)"
+                    placeholderTextColor="rgba(255,255,255,0.4)"
                     value={email}
                     onChangeText={setEmail}
                     keyboardType="email-address"
@@ -93,30 +116,50 @@ export default function ForgotPasswordScreen({ navigation }) {
               <TouchableOpacity
                 onPress={handleResetPassword}
                 disabled={isLoading}
-                className="bg-white rounded-2xl py-4 mt-6"
+                className="rounded-2xl py-4 mt-6 overflow-hidden"
+              >
+                <LinearGradient
+                  colors={['#8000ff', '#0080ff', '#00f5ff']}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 0 }}
+                  className="py-4 rounded-2xl"
+                >
+                  <Text className="text-black text-center text-lg font-bold">
+                    {isLoading ? 'Sending Reset Link...' : 'Send Reset Link'}
+                  </Text>
+                </LinearGradient>
+              </TouchableOpacity>
+
+              {/* Additional Info */}
+              <View 
+                className="rounded-2xl p-4 mt-6"
                 style={{
-                  shadowColor: '#000',
-                  shadowOffset: { width: 0, height: 4 },
-                  shadowOpacity: 0.3,
-                  shadowRadius: 8,
-                  elevation: 8,
+                  backgroundColor: 'rgba(128, 0, 255, 0.05)',
+                  borderWidth: 1,
+                  borderColor: 'rgba(128, 0, 255, 0.1)',
                 }}
               >
-                <Text className="text-purple-600 text-center text-lg font-bold">
-                  {isLoading ? 'Sending Reset Link...' : 'Send Reset Link'}
+                <View className="flex-row items-center mb-2">
+                  <Ionicons name="information-circle" size={20} color="#8000ff" />
+                  <Text className="text-purple-400 font-semibold ml-2">
+                    Quick Tip
+                  </Text>
+                </View>
+                <Text className="text-gray-300 text-sm">
+                  Check your spam folder if you don't see the reset email in your inbox within a few minutes.
                 </Text>
-              </TouchableOpacity>
+              </View>
 
               {/* Back to Login */}
               <View className="flex-row justify-center items-center mt-8">
-                <Text className="text-white/80 text-base">
+                <Text className="text-gray-400 text-base">
                   Remember your password? 
                 </Text>
                 <TouchableOpacity
                   onPress={() => navigation.navigate('Login')}
                   className="ml-2"
                 >
-                  <Text className="text-white text-base font-bold">
+                  <Text className="text-cyan-400 text-base font-bold">
                     Sign In
                   </Text>
                 </TouchableOpacity>

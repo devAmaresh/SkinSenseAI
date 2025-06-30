@@ -46,7 +46,6 @@ export default function SignupScreen({ navigation }) {
     }
 
     setIsLoading(true);
-    // Simulate API call
     setTimeout(() => {
       setIsLoading(false);
       navigation.navigate('SkinTypeQuestions');
@@ -57,7 +56,7 @@ export default function SignupScreen({ navigation }) {
     <SafeAreaView className="flex-1">
       <StatusBar style="light" />
       <LinearGradient
-        colors={['#667eea', '#764ba2']}
+        colors={['#000000', '#1a1a1a', '#000000']}
         className="flex-1"
       >
         <KeyboardAvoidingView
@@ -71,7 +70,12 @@ export default function SignupScreen({ navigation }) {
             {/* Back Button */}
             <TouchableOpacity
               onPress={() => navigation.goBack()}
-              className="absolute top-12 left-6 z-10 w-10 h-10 rounded-full bg-white/20 items-center justify-center"
+              className="absolute top-12 left-6 z-10 w-12 h-12 rounded-full items-center justify-center"
+              style={{
+                backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                borderWidth: 1,
+                borderColor: 'rgba(255, 255, 255, 0.1)',
+              }}
             >
               <Ionicons name="arrow-back" size={24} color="white" />
             </TouchableOpacity>
@@ -79,13 +83,25 @@ export default function SignupScreen({ navigation }) {
             <View className="flex-1 justify-center px-8 pt-20">
               {/* Header */}
               <View className="items-center mb-8">
-                <View className="w-20 h-20 rounded-full bg-white/20 items-center justify-center mb-6">
-                  <Ionicons name="person-add-outline" size={40} color="white" />
+                <View 
+                  className="w-24 h-24 rounded-full items-center justify-center mb-6"
+                  style={{
+                    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                    borderWidth: 1,
+                    borderColor: 'rgba(255, 255, 255, 0.1)',
+                  }}
+                >
+                  <LinearGradient
+                    colors={['#00f5ff', '#0080ff']}
+                    className="w-12 h-12 rounded-full items-center justify-center"
+                  >
+                    <Ionicons name="person-add" size={24} color="#000" />
+                  </LinearGradient>
                 </View>
                 <Text className="text-4xl font-bold text-white text-center mb-2">
                   Create Account
                 </Text>
-                <Text className="text-white/80 text-center text-lg">
+                <Text className="text-gray-300 text-center text-lg">
                   Join SkinSenseAI and start your journey
                 </Text>
               </View>
@@ -94,14 +110,21 @@ export default function SignupScreen({ navigation }) {
               <View className="space-y-5">
                 {/* Full Name Input */}
                 <View className="space-y-2">
-                  <Text className="text-white/90 text-sm font-medium ml-1">
+                  <Text className="text-gray-300 text-sm font-medium ml-1">
                     Full Name
                   </Text>
-                  <View className="bg-white/10 rounded-2xl px-4 py-4 border border-white/20">
+                  <View 
+                    className="rounded-2xl px-4 py-4"
+                    style={{
+                      backgroundColor: 'rgba(255, 255, 255, 0.03)',
+                      borderWidth: 1,
+                      borderColor: 'rgba(255, 255, 255, 0.08)',
+                    }}
+                  >
                     <TextInput
                       className="text-white text-base"
                       placeholder="Enter your full name"
-                      placeholderTextColor="rgba(255,255,255,0.6)"
+                      placeholderTextColor="rgba(255,255,255,0.4)"
                       value={fullName}
                       onChangeText={setFullName}
                       autoCapitalize="words"
@@ -112,14 +135,21 @@ export default function SignupScreen({ navigation }) {
 
                 {/* Email Input */}
                 <View className="space-y-2">
-                  <Text className="text-white/90 text-sm font-medium ml-1">
+                  <Text className="text-gray-300 text-sm font-medium ml-1">
                     Email Address
                   </Text>
-                  <View className="bg-white/10 rounded-2xl px-4 py-4 border border-white/20">
+                  <View 
+                    className="rounded-2xl px-4 py-4"
+                    style={{
+                      backgroundColor: 'rgba(255, 255, 255, 0.03)',
+                      borderWidth: 1,
+                      borderColor: 'rgba(255, 255, 255, 0.08)',
+                    }}
+                  >
                     <TextInput
                       className="text-white text-base"
                       placeholder="Enter your email"
-                      placeholderTextColor="rgba(255,255,255,0.6)"
+                      placeholderTextColor="rgba(255,255,255,0.4)"
                       value={email}
                       onChangeText={setEmail}
                       keyboardType="email-address"
@@ -131,14 +161,21 @@ export default function SignupScreen({ navigation }) {
 
                 {/* Password Input */}
                 <View className="space-y-2">
-                  <Text className="text-white/90 text-sm font-medium ml-1">
+                  <Text className="text-gray-300 text-sm font-medium ml-1">
                     Password
                   </Text>
-                  <View className="bg-white/10 rounded-2xl px-4 py-4 border border-white/20 flex-row items-center">
+                  <View 
+                    className="rounded-2xl px-4 py-4 flex-row items-center"
+                    style={{
+                      backgroundColor: 'rgba(255, 255, 255, 0.03)',
+                      borderWidth: 1,
+                      borderColor: 'rgba(255, 255, 255, 0.08)',
+                    }}
+                  >
                     <TextInput
                       className="text-white text-base flex-1"
                       placeholder="Create a password"
-                      placeholderTextColor="rgba(255,255,255,0.6)"
+                      placeholderTextColor="rgba(255,255,255,0.4)"
                       value={password}
                       onChangeText={setPassword}
                       secureTextEntry={!showPassword}
@@ -152,7 +189,7 @@ export default function SignupScreen({ navigation }) {
                       <Ionicons
                         name={showPassword ? "eye-off" : "eye"}
                         size={20}
-                        color="rgba(255,255,255,0.7)"
+                        color="rgba(255,255,255,0.6)"
                       />
                     </TouchableOpacity>
                   </View>
@@ -160,14 +197,21 @@ export default function SignupScreen({ navigation }) {
 
                 {/* Confirm Password Input */}
                 <View className="space-y-2">
-                  <Text className="text-white/90 text-sm font-medium ml-1">
+                  <Text className="text-gray-300 text-sm font-medium ml-1">
                     Confirm Password
                   </Text>
-                  <View className="bg-white/10 rounded-2xl px-4 py-4 border border-white/20 flex-row items-center">
+                  <View 
+                    className="rounded-2xl px-4 py-4 flex-row items-center"
+                    style={{
+                      backgroundColor: 'rgba(255, 255, 255, 0.03)',
+                      borderWidth: 1,
+                      borderColor: 'rgba(255, 255, 255, 0.08)',
+                    }}
+                  >
                     <TextInput
                       className="text-white text-base flex-1"
                       placeholder="Confirm your password"
-                      placeholderTextColor="rgba(255,255,255,0.6)"
+                      placeholderTextColor="rgba(255,255,255,0.4)"
                       value={confirmPassword}
                       onChangeText={setConfirmPassword}
                       secureTextEntry={!showConfirmPassword}
@@ -181,7 +225,7 @@ export default function SignupScreen({ navigation }) {
                       <Ionicons
                         name={showConfirmPassword ? "eye-off" : "eye"}
                         size={20}
-                        color="rgba(255,255,255,0.7)"
+                        color="rgba(255,255,255,0.6)"
                       />
                     </TouchableOpacity>
                   </View>
@@ -192,16 +236,29 @@ export default function SignupScreen({ navigation }) {
                   onPress={() => setAgreeToTerms(!agreeToTerms)}
                   className="flex-row items-center mt-4"
                 >
-                  <View className={`w-5 h-5 rounded border-2 border-white/50 mr-3 items-center justify-center ${agreeToTerms ? 'bg-white' : 'bg-transparent'}`}>
+                  <View 
+                    className={`w-5 h-5 rounded mr-3 items-center justify-center ${
+                      agreeToTerms ? '' : ''
+                    }`}
+                    style={{
+                      backgroundColor: agreeToTerms 
+                        ? 'rgba(0, 245, 255, 0.2)' 
+                        : 'rgba(255, 255, 255, 0.03)',
+                      borderWidth: 1,
+                      borderColor: agreeToTerms 
+                        ? 'rgba(0, 245, 255, 0.4)' 
+                        : 'rgba(255, 255, 255, 0.1)',
+                    }}
+                  >
                     {agreeToTerms && (
-                      <Ionicons name="checkmark" size={12} color="#667eea" />
+                      <Ionicons name="checkmark" size={12} color="#00f5ff" />
                     )}
                   </View>
-                  <Text className="text-white/80 text-sm flex-1">
+                  <Text className="text-gray-300 text-sm flex-1">
                     I agree to the{' '}
-                    <Text className="text-white font-medium">Terms of Service</Text>
+                    <Text className="text-cyan-400 font-medium">Terms of Service</Text>
                     {' '}and{' '}
-                    <Text className="text-white font-medium">Privacy Policy</Text>
+                    <Text className="text-cyan-400 font-medium">Privacy Policy</Text>
                   </Text>
                 </TouchableOpacity>
 
@@ -209,50 +266,54 @@ export default function SignupScreen({ navigation }) {
                 <TouchableOpacity
                   onPress={handleSignup}
                   disabled={isLoading}
-                  className="bg-white rounded-2xl py-4 mt-6"
-                  style={{
-                    shadowColor: '#000',
-                    shadowOffset: { width: 0, height: 4 },
-                    shadowOpacity: 0.3,
-                    shadowRadius: 8,
-                    elevation: 8,
-                  }}
+                  className="rounded-2xl py-4 mt-6 overflow-hidden"
                 >
-                  <Text className="text-purple-600 text-center text-lg font-bold">
-                    {isLoading ? 'Creating Account...' : 'Create Account'}
-                  </Text>
+                  <LinearGradient
+                    colors={['#00f5ff', '#0080ff', '#8000ff']}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 0 }}
+                    className="py-4 rounded-2xl"
+                  >
+                    <Text className="text-black text-center text-lg font-bold">
+                      {isLoading ? 'Creating Account...' : 'Create Account'}
+                    </Text>
+                  </LinearGradient>
                 </TouchableOpacity>
 
                 {/* Divider */}
                 <View className="flex-row items-center my-6">
-                  <View className="flex-1 h-px bg-white/30" />
-                  <Text className="mx-4 text-white/70 text-sm">or sign up with</Text>
-                  <View className="flex-1 h-px bg-white/30" />
+                  <View className="flex-1 h-px bg-gray-700" />
+                  <Text className="mx-4 text-gray-400 text-sm">or sign up with</Text>
+                  <View className="flex-1 h-px bg-gray-700" />
                 </View>
 
                 {/* Social Signup Buttons */}
                 <View className="flex-row space-x-4">
-                  <TouchableOpacity className="flex-1 bg-white/10 rounded-2xl py-4 items-center border border-white/20">
-                    <Ionicons name="logo-google" size={24} color="white" />
-                  </TouchableOpacity>
-                  <TouchableOpacity className="flex-1 bg-white/10 rounded-2xl py-4 items-center border border-white/20">
-                    <Ionicons name="logo-apple" size={24} color="white" />
-                  </TouchableOpacity>
-                  <TouchableOpacity className="flex-1 bg-white/10 rounded-2xl py-4 items-center border border-white/20">
-                    <Ionicons name="logo-facebook" size={24} color="white" />
-                  </TouchableOpacity>
+                  {['logo-google', 'logo-apple', 'logo-facebook'].map((icon, index) => (
+                    <TouchableOpacity 
+                      key={index}
+                      className="flex-1 rounded-2xl py-4 items-center"
+                      style={{
+                        backgroundColor: 'rgba(255, 255, 255, 0.03)',
+                        borderWidth: 1,
+                        borderColor: 'rgba(255, 255, 255, 0.08)',
+                      }}
+                    >
+                      <Ionicons name={icon} size={24} color="white" />
+                    </TouchableOpacity>
+                  ))}
                 </View>
 
                 {/* Login Link */}
                 <View className="flex-row justify-center items-center mt-6 mb-8">
-                  <Text className="text-white/80 text-base">
+                  <Text className="text-gray-400 text-base">
                     Already have an account? 
                   </Text>
                   <TouchableOpacity
                     onPress={() => navigation.navigate('Login')}
                     className="ml-2"
                   >
-                    <Text className="text-white text-base font-bold">
+                    <Text className="text-cyan-400 text-base font-bold">
                       Sign In
                     </Text>
                   </TouchableOpacity>

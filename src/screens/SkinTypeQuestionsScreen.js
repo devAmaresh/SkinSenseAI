@@ -98,7 +98,7 @@ export default function SkinTypeQuestionsScreen({ navigation }) {
     <SafeAreaView className="flex-1">
       <StatusBar style="light" />
       <LinearGradient
-        colors={['#667eea', '#764ba2']}
+        colors={['#000000', '#1a1a1a', '#000000']}
         className="flex-1"
       >
         <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
@@ -106,7 +106,12 @@ export default function SkinTypeQuestionsScreen({ navigation }) {
           <View className="px-6 pt-12 pb-6">
             <TouchableOpacity
               onPress={() => navigation.goBack()}
-              className="w-10 h-10 rounded-full bg-white/20 items-center justify-center mb-6"
+              className="w-12 h-12 rounded-full items-center justify-center mb-6"
+              style={{
+                backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                borderWidth: 1,
+                borderColor: 'rgba(255, 255, 255, 0.1)',
+              }}
             >
               <Ionicons name="arrow-back" size={24} color="white" />
             </TouchableOpacity>
@@ -114,7 +119,7 @@ export default function SkinTypeQuestionsScreen({ navigation }) {
             <Text className="text-3xl font-bold text-white mb-2">
               Skin Assessment
             </Text>
-            <Text className="text-white/80 text-lg">
+            <Text className="text-gray-300 text-lg">
               Help us understand your skin better
             </Text>
           </View>
@@ -122,16 +127,24 @@ export default function SkinTypeQuestionsScreen({ navigation }) {
           {/* Progress Bar */}
           <View className="px-6 mb-8">
             <View className="flex-row justify-between items-center mb-2">
-              <Text className="text-white/80 text-sm">
+              <Text className="text-gray-300 text-sm">
                 Question {currentQuestion + 1} of {skinTypeQuestions.length}
               </Text>
-              <Text className="text-white/80 text-sm">
+              <Text className="text-gray-300 text-sm">
                 {Math.round(progress)}%
               </Text>
             </View>
-            <View className="h-2 bg-white/20 rounded-full">
-              <View 
-                className="h-2 bg-white rounded-full transition-all duration-300"
+            <View 
+              className="h-3 rounded-full"
+              style={{
+                backgroundColor: 'rgba(255, 255, 255, 0.1)',
+              }}
+            >
+              <LinearGradient
+                colors={['#00f5ff', '#0080ff', '#8000ff']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                className="h-3 rounded-full"
                 style={{ width: `${progress}%` }}
               />
             </View>
@@ -150,32 +163,44 @@ export default function SkinTypeQuestionsScreen({ navigation }) {
               <TouchableOpacity
                 key={option.id}
                 onPress={() => handleOptionSelect(option.id)}
-                className={`p-4 rounded-2xl border-2 flex-row items-center ${
-                  selectedOption === option.id
-                    ? 'bg-white border-white'
-                    : 'bg-white/10 border-white/30'
-                }`}
+                className="p-4 rounded-2xl flex-row items-center"
+                style={{
+                  backgroundColor: selectedOption === option.id
+                    ? 'rgba(0, 245, 255, 0.1)'
+                    : 'rgba(255, 255, 255, 0.03)',
+                  borderWidth: 1,
+                  borderColor: selectedOption === option.id
+                    ? 'rgba(0, 245, 255, 0.3)'
+                    : 'rgba(255, 255, 255, 0.08)',
+                }}
               >
-                <View className={`w-12 h-12 rounded-full items-center justify-center mr-4 ${
-                  selectedOption === option.id
-                    ? 'bg-purple-100'
-                    : 'bg-white/20'
-                }`}>
+                <View 
+                  className="w-12 h-12 rounded-full items-center justify-center mr-4"
+                  style={{
+                    backgroundColor: selectedOption === option.id
+                      ? 'rgba(0, 245, 255, 0.2)'
+                      : 'rgba(255, 255, 255, 0.05)',
+                    borderWidth: 1,
+                    borderColor: selectedOption === option.id
+                      ? 'rgba(0, 245, 255, 0.4)'
+                      : 'rgba(255, 255, 255, 0.1)',
+                  }}
+                >
                   <Ionicons
                     name={option.icon}
                     size={24}
-                    color={selectedOption === option.id ? '#667eea' : 'white'}
+                    color={selectedOption === option.id ? '#00f5ff' : 'white'}
                   />
                 </View>
-                <Text className={`text-lg font-medium flex-1 ${
-                  selectedOption === option.id
-                    ? 'text-purple-600'
-                    : 'text-white'
-                }`}>
+                <Text 
+                  className={`text-lg font-medium flex-1 ${
+                    selectedOption === option.id ? 'text-cyan-400' : 'text-white'
+                  }`}
+                >
                   {option.text}
                 </Text>
                 {selectedOption === option.id && (
-                  <Ionicons name="checkmark-circle" size={24} color="#667eea" />
+                  <Ionicons name="checkmark-circle" size={24} color="#00f5ff" />
                 )}
               </TouchableOpacity>
             ))}
@@ -186,35 +211,40 @@ export default function SkinTypeQuestionsScreen({ navigation }) {
             <TouchableOpacity
               onPress={handlePrevious}
               disabled={currentQuestion === 0}
-              className={`px-6 py-3 rounded-2xl ${
-                currentQuestion === 0
-                  ? 'bg-white/20'
-                  : 'bg-white/30'
-              }`}
+              className="px-6 py-3 rounded-2xl"
+              style={{
+                backgroundColor: currentQuestion === 0
+                  ? 'rgba(255, 255, 255, 0.03)'
+                  : 'rgba(255, 255, 255, 0.05)',
+                borderWidth: 1,
+                borderColor: currentQuestion === 0
+                  ? 'rgba(255, 255, 255, 0.05)'
+                  : 'rgba(255, 255, 255, 0.1)',
+              }}
             >
-              <Text className={`text-lg font-semibold ${
-                currentQuestion === 0
-                  ? 'text-white/50'
-                  : 'text-white'
-              }`}>
+              <Text 
+                className={`text-lg font-semibold ${
+                  currentQuestion === 0 ? 'text-gray-600' : 'text-white'
+                }`}
+              >
                 Previous
               </Text>
             </TouchableOpacity>
 
             <TouchableOpacity
               onPress={handleNext}
-              className="bg-white px-8 py-3 rounded-2xl"
-              style={{
-                shadowColor: '#000',
-                shadowOffset: { width: 0, height: 4 },
-                shadowOpacity: 0.3,
-                shadowRadius: 8,
-                elevation: 8,
-              }}
+              className="rounded-2xl px-8 py-3 overflow-hidden"
             >
-              <Text className="text-purple-600 text-lg font-bold">
-                {currentQuestion === skinTypeQuestions.length - 1 ? 'Finish' : 'Next'}
-              </Text>
+              <LinearGradient
+                colors={['#00f5ff', '#0080ff', '#8000ff']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                className="px-8 py-3 rounded-2xl"
+              >
+                <Text className="text-black text-lg font-bold">
+                  {currentQuestion === skinTypeQuestions.length - 1 ? 'Finish' : 'Next'}
+                </Text>
+              </LinearGradient>
             </TouchableOpacity>
           </View>
         </ScrollView>
