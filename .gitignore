@@ -1,0 +1,4 @@
+/fastapi-backend/.env
+/fastapi-backend/__pycache__/
+/fastapi-backend/*.pyc
+/fastapi-backend/myvenv/
