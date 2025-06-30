@@ -13,6 +13,7 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { StatusBar } from 'expo-status-bar';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import ApiService from '../services/api';
 
 export default function SignupScreen({ navigation }) {
   const [fullName, setFullName] = useState('');
@@ -24,9 +25,20 @@ export default function SignupScreen({ navigation }) {
   const [isLoading, setIsLoading] = useState(false);
   const [agreeToTerms, setAgreeToTerms] = useState(false);
 
+  const validateEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
   const handleSignup = async () => {
-    if (!fullName || !email || !password || !confirmPassword) {
+    // Validation
+    if (!fullName.trim() || !email.trim() || !password || !confirmPassword) {
       Alert.alert('Error', 'Please fill in all fields');
+      return;
+    }
+
+    if (!validateEmail(email)) {
+      Alert.alert('Error', 'Please enter a valid email address');
       return;
     }
 
@@ -46,10 +58,30 @@ export default function SignupScreen({ navigation }) {
     }
 
     setIsLoading(true);
-    setTimeout(() => {
+
+    try {
+      const userData = {
+        fullName: fullName.trim(),
+        email: email.trim().toLowerCase(),
+        password: password,
+      };
+
+      const response = await ApiService.register(userData);
+      
+      Alert.alert(
+        'Success!', 
+        'Account created successfully!',
+        [{ text: 'OK', onPress: () => navigation.navigate('SkinTypeQuestions') }]
+      );
+    } catch (error) {
+      console.error('Signup error:', error);
+      Alert.alert(
+        'Signup Failed', 
+        error.message || 'Failed to create account. Please try again.'
+      );
+    } finally {
       setIsLoading(false);
-      navigation.navigate('SkinTypeQuestions');
-    }, 2000);
+    }
   };
 
   return (
@@ -129,6 +161,7 @@ export default function SignupScreen({ navigation }) {
                       onChangeText={setFullName}
                       autoCapitalize="words"
                       autoCorrect={false}
+                      editable={!isLoading}
                     />
                   </View>
                 </View>
@@ -155,6 +188,7 @@ export default function SignupScreen({ navigation }) {
                       keyboardType="email-address"
                       autoCapitalize="none"
                       autoCorrect={false}
+                      editable={!isLoading}
                     />
                   </View>
                 </View>
@@ -181,10 +215,12 @@ export default function SignupScreen({ navigation }) {
                       secureTextEntry={!showPassword}
                       autoCapitalize="none"
                       autoCorrect={false}
+                      editable={!isLoading}
                     />
                     <TouchableOpacity
                       onPress={() => setShowPassword(!showPassword)}
                       className="ml-2"
+                      disabled={isLoading}
                     >
                       <Ionicons
                         name={showPassword ? "eye-off" : "eye"}
@@ -217,10 +253,12 @@ export default function SignupScreen({ navigation }) {
                       secureTextEntry={!showConfirmPassword}
                       autoCapitalize="none"
                       autoCorrect={false}
+                      editable={!isLoading}
                     />
                     <TouchableOpacity
                       onPress={() => setShowConfirmPassword(!showConfirmPassword)}
                       className="ml-2"
+                      disabled={isLoading}
                     >
                       <Ionicons
                         name={showConfirmPassword ? "eye-off" : "eye"}
@@ -235,11 +273,10 @@ export default function SignupScreen({ navigation }) {
                 <TouchableOpacity
                   onPress={() => setAgreeToTerms(!agreeToTerms)}
                   className="flex-row items-center mt-4"
+                  disabled={isLoading}
                 >
                   <View 
-                    className={`w-5 h-5 rounded mr-3 items-center justify-center ${
-                      agreeToTerms ? '' : ''
-                    }`}
+                    className={`w-5 h-5 rounded mr-3 items-center justify-center`}
                     style={{
                       backgroundColor: agreeToTerms 
                         ? 'rgba(0, 245, 255, 0.2)' 
@@ -267,6 +304,7 @@ export default function SignupScreen({ navigation }) {
                   onPress={handleSignup}
                   disabled={isLoading}
                   className="rounded-2xl py-4 mt-6 overflow-hidden"
+                  style={{ opacity: isLoading ? 0.7 : 1 }}
                 >
                   <LinearGradient
                     colors={['#00f5ff', '#0080ff', '#8000ff']}
@@ -293,6 +331,7 @@ export default function SignupScreen({ navigation }) {
                     <TouchableOpacity 
                       key={index}
                       className="flex-1 rounded-2xl py-4 items-center"
+                      disabled={isLoading}
                       style={{
                         backgroundColor: 'rgba(255, 255, 255, 0.03)',
                         borderWidth: 1,
@@ -312,6 +351,7 @@ export default function SignupScreen({ navigation }) {
                   <TouchableOpacity
                     onPress={() => navigation.navigate('Login')}
                     className="ml-2"
+                    disabled={isLoading}
                   >
                     <Text className="text-cyan-400 text-base font-bold">
                       Sign In

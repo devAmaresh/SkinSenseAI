@@ -13,24 +13,64 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { StatusBar } from 'expo-status-bar';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import ApiService from '../services/api';
+import ConnectionTest from '../components/ConnectionTest'; // Add this for debugging
 
 export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [showConnectionTest, setShowConnectionTest] = useState(__DEV__); // Show only in development
+
+  const validateEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
 
   const handleLogin = async () => {
-    if (!email || !password) {
+    if (!email.trim() || !password) {
       Alert.alert('Error', 'Please fill in all fields');
       return;
     }
 
+    if (!validateEmail(email)) {
+      Alert.alert('Error', 'Please enter a valid email address');
+      return;
+    }
+
     setIsLoading(true);
-    setTimeout(() => {
+
+    try {
+      const credentials = {
+        email: email.trim().toLowerCase(),
+        password: password,
+      };
+
+      const response = await ApiService.login(credentials);
+      
+      Alert.alert(
+        'Success!', 
+        'Welcome back to SkinSenseAI!',
+        [{ text: 'OK', onPress: () => navigation.navigate('Home') }]
+      );
+    } catch (error) {
+      console.error('Login error:', error);
+      
+      let errorMessage = 'An unexpected error occurred. Please try again.';
+      
+      if (error.message.includes('Network connection failed')) {
+        errorMessage = 'Cannot connect to server. Please check your internet connection and ensure the backend is running.';
+      } else if (error.message.includes('Incorrect email or password')) {
+        errorMessage = 'Invalid email or password. Please check your credentials.';
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
+      Alert.alert('Login Failed', errorMessage);
+    } finally {
       setIsLoading(false);
-      navigation.navigate('Home');
-    }, 2000);
+    }
   };
 
   return (
@@ -48,6 +88,9 @@ export default function LoginScreen({ navigation }) {
             contentContainerStyle={{ flexGrow: 1 }}
             showsVerticalScrollIndicator={false}
           >
+            {/* Connection Test (Development Only) */}
+            {showConnectionTest && <ConnectionTest />}
+            
             {/* Back Button */}
             <TouchableOpacity
               onPress={() => navigation.goBack()}
@@ -111,6 +154,7 @@ export default function LoginScreen({ navigation }) {
                       keyboardType="email-address"
                       autoCapitalize="none"
                       autoCorrect={false}
+                      editable={!isLoading}
                     />
                   </View>
                 </View>
@@ -137,10 +181,12 @@ export default function LoginScreen({ navigation }) {
                       secureTextEntry={!showPassword}
                       autoCapitalize="none"
                       autoCorrect={false}
+                      editable={!isLoading}
                     />
                     <TouchableOpacity
                       onPress={() => setShowPassword(!showPassword)}
                       className="ml-2"
+                      disabled={isLoading}
                     >
                       <Ionicons
                         name={showPassword ? "eye-off" : "eye"}
@@ -155,6 +201,7 @@ export default function LoginScreen({ navigation }) {
                 <TouchableOpacity
                   onPress={() => navigation.navigate('ForgotPassword')}
                   className="self-end"
+                  disabled={isLoading}
                 >
                   <Text className="text-cyan-400 text-sm font-medium">
                     Forgot Password?
@@ -166,6 +213,7 @@ export default function LoginScreen({ navigation }) {
                   onPress={handleLogin}
                   disabled={isLoading}
                   className="rounded-2xl py-4 mt-6 overflow-hidden"
+                  style={{ opacity: isLoading ? 0.7 : 1 }}
                 >
                   <LinearGradient
                     colors={['#00f5ff', '#0080ff', '#8000ff']}
@@ -192,6 +240,7 @@ export default function LoginScreen({ navigation }) {
                     <TouchableOpacity 
                       key={index}
                       className="flex-1 rounded-2xl py-4 items-center"
+                      disabled={isLoading}
                       style={{
                         backgroundColor: 'rgba(255, 255, 255, 0.03)',
                         borderWidth: 1,
@@ -211,6 +260,7 @@ export default function LoginScreen({ navigation }) {
                   <TouchableOpacity
                     onPress={() => navigation.navigate('Signup')}
                     className="ml-2"
+                    disabled={isLoading}
                   >
                     <Text className="text-cyan-400 text-base font-bold">
                       Sign Up

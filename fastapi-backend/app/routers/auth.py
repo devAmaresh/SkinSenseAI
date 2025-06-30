@@ -13,7 +13,7 @@ from app.models.user import User
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
-@router.post("/register", response_model=UserResponse)
+@router.post("/register", response_model=Token)
 async def register(user: UserCreate, db: Session = Depends(get_db)):
     # Check if user already exists
     db_user = get_user_by_email(db, email=user.email)
@@ -30,7 +30,15 @@ async def register(user: UserCreate, db: Session = Depends(get_db)):
             detail="Username already taken"
         )
     
-    return create_user(db=db, user=user)
+    # Create user
+    new_user = create_user(db=db, user=user)
+    
+    # Generate access token for the new user
+    access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(
+        data={"sub": new_user.email}, expires_delta=access_token_expires
+    )
+    return {"access_token": access_token, "token_type": "bearer"}
 
 @router.post("/login", response_model=Token)
 async def login(user_credentials: UserLogin, db: Session = Depends(get_db)):

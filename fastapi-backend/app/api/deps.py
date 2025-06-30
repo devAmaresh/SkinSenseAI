@@ -5,6 +5,7 @@ from app.core.database import get_db
 from app.core.security import verify_token
 from app.crud.user import get_user_by_email
 from app.models.user import User
+from app.core.dbconnection import db_manager
 
 security = HTTPBearer()
 
@@ -32,3 +33,12 @@ async def get_current_active_user(current_user: User = Depends(get_current_user)
     if not current_user.is_active:
         raise HTTPException(status_code=400, detail="Inactive user")
     return current_user
+
+async def verify_db_connection():
+    """Dependency to verify database connection."""
+    if not db_manager.test_connection():
+        raise HTTPException(
+            status_code=503,
+            detail="Database connection unavailable"
+        )
+    return True
