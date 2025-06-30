@@ -2,3 +2,5 @@
 /fastapi-backend/__pycache__/
 /fastapi-backend/*.pyc
 /fastapi-backend/myvenv/
+__pycache__/
+**/__pycache__/
