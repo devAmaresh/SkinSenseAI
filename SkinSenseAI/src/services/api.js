@@ -9,7 +9,7 @@ const getApiBaseUrl = () => {
     if (Platform.OS === 'ios') {
       return 'http://localhost:8000/api/v1';
     } else if (Platform.OS === 'android') {
-      return 'http://192.168.159.70:8000/api/v1'; // Android emulator
+      return `http://${LOCAL_IP_ADDRESS}:8000/api/v1`; // Android emulator
     } else {
       // For Expo Go or web
       return `http://${LOCAL_IP_ADDRESS}:8000/api/v1`; // Replace with your computer's IP

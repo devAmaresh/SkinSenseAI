@@ -8,7 +8,7 @@ from app.core.database import get_db
 from app.core.config import settings
 from app.core.security import create_access_token, verify_password
 from app.schemas.user import UserCreate, UserResponse, UserUpdate, Token, UserLogin
-from app.crud.user import create_user, get_user_by_email, authenticate_user, update_user_profile, change_user_password
+from app.crud.user import create_user, get_user_by_email, get_user_by_username, authenticate_user, update_user_profile, change_user_password
 from app.api.deps import get_current_active_user
 from app.models.user import User
 
