@@ -1,0 +1,8 @@
+/fastapi-backend/myvenv/
+/fastapi-backend/__pycache__/
+/fastapi-backend/*.pyc
+/fastapi-backend/.env
+/SkinSenseAI/node_modules/
+/SkinSenseAI/.env
+/SkinSenseAI/build/
+/SkinSenseAI/dist/
