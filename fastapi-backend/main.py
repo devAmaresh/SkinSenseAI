@@ -6,7 +6,7 @@ import logging
 from app.core.database import Base, engine
 from app.core.dbconnection import init_database, check_db_health, db_manager
 from app.core.config import settings
-from app.routers import auth
+from app.routers import auth, skin  # Add skin router
 
 # Configure logging
 logging.basicConfig(
@@ -35,7 +35,7 @@ async def lifespan(app: FastAPI):
 # Create FastAPI app with lifespan events
 app = FastAPI(
     title="SkinSenseAI Backend",
-    description="FastAPI backend for SkinSenseAI application",
+    description="FastAPI backend for SkinSenseAI application with Gemini AI integration",
     version="1.0.0",
     lifespan=lifespan
 )
@@ -58,6 +58,7 @@ app.add_middleware(
 
 # Include routers
 app.include_router(auth.router, prefix="/api/v1")
+app.include_router(skin.router, prefix="/api/v1")  # Add skin router
 
 @app.get("/")
 async def root():
@@ -66,7 +67,8 @@ async def root():
         "message": "SkinSenseAI FastAPI Backend is running!",
         "version": "1.0.0",
         "docs": "/docs",
-        "status": "healthy"
+        "status": "healthy",
+        "features": ["authentication", "skin_analysis", "product_analysis"]
     }
 
 @app.get("/health")

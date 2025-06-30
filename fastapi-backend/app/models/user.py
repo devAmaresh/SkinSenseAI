@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Boolean, DateTime
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, JSON, Text
 from sqlalchemy.sql import func
 from app.core.database import Base
 
@@ -12,5 +12,26 @@ class User(Base):
     hashed_password = Column(String, nullable=False)
     is_active = Column(Boolean, default=True)
     is_verified = Column(Boolean, default=False)
+    
+    # Skin type data
+    skin_type = Column(String, nullable=True)  # 'dry', 'oily', 'combination', 'sensitive'
+    skin_assessment_answers = Column(JSON, nullable=True)  # Store the questionnaire answers
+    skin_concerns = Column(Text, nullable=True)  # Additional skin concerns
+    
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+
+class ProductAnalysis(Base):
+    __tablename__ = "product_analyses"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, nullable=False)  # Foreign key to users
+    product_image_url = Column(String, nullable=True)
+    product_name = Column(String, nullable=True)
+    ingredients = Column(Text, nullable=True)
+    analysis_result = Column(JSON, nullable=False)  # Gemini AI analysis result
+    suitability_score = Column(Integer, nullable=True)  # 1-10 score
+    recommendation = Column(Text, nullable=True)
+    warnings = Column(Text, nullable=True)
+    
+    created_at = Column(DateTime(timezone=True), server_default=func.now())

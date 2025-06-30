@@ -202,10 +202,35 @@ class ApiService {
 
   async logout() {
     try {
+      // Call logout endpoint to invalidate token on server
+      await this.makeRequest('/auth/logout', {
+        method: 'POST',
+      });
+      
+      // Remove token from local storage
       await this.removeAuthToken();
+      
       return { success: true };
     } catch (error) {
       console.error('Logout error:', error);
+      // Even if server logout fails, remove local token
+      await this.removeAuthToken();
+      return { success: true };
+    }
+  }
+
+  async deleteAccount() {
+    try {
+      await this.makeRequest('/auth/delete-account', {
+        method: 'DELETE',
+      });
+      
+      // Remove token after successful deletion
+      await this.removeAuthToken();
+      
+      return { success: true };
+    } catch (error) {
+      console.error('Delete account error:', error);
       throw error;
     }
   }
@@ -222,6 +247,70 @@ class ApiService {
     } catch (error) {
       await this.removeAuthToken();
       return false;
+    }
+  }
+
+  // Skin analysis endpoints
+  async submitSkinAssessment(answers, additionalConcerns = null) {
+    try {
+      const response = await this.makeRequest('/skin/assessment', {
+        method: 'POST',
+        body: JSON.stringify({
+          answers: answers,
+          additional_concerns: additionalConcerns,
+        }),
+      });
+
+      return response;
+    } catch (error) {
+      console.error('Skin assessment error:', error);
+      throw error;
+    }
+  }
+
+  async getSkinProfile() {
+    try {
+      return await this.makeRequest('/skin/profile');
+    } catch (error) {
+      console.error('Get skin profile error:', error);
+      throw error;
+    }
+  }
+
+  async analyzeProduct(productName = null, ingredients = null) {
+    try {
+      const formData = new FormData();
+      
+      if (productName) {
+        formData.append('product_name', productName);
+      }
+      
+      if (ingredients) {
+        formData.append('ingredients', ingredients);
+      }
+
+      const response = await this.makeRequest('/skin/analyze-product', {
+        method: 'POST',
+        headers: {
+          // Don't set Content-Type for FormData, let the browser set it
+          'Authorization': `Bearer ${await this.getAuthToken()}`,
+        },
+        body: formData,
+      });
+
+      return response;
+    } catch (error) {
+      console.error('Product analysis error:', error);
+      throw error;
+    }
+  }
+
+  async getMyAnalyses(skip = 0, limit = 10) {
+    try {
+      return await this.makeRequest(`/skin/analyses?skip=${skip}&limit=${limit}`);
+    } catch (error) {
+      console.error('Get analyses error:', error);
+      throw error;
     }
   }
 }

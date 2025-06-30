@@ -5,9 +5,9 @@ from sqlalchemy.orm import Session
 
 from app.core.database import get_db
 from app.core.config import settings
-from app.core.security import create_access_token
-from app.schemas.user import UserCreate, UserResponse, UserLogin, Token
-from app.crud.user import create_user, get_user_by_email, get_user_by_username, authenticate_user
+from app.core.security import create_access_token, verify_password
+from app.schemas.user import UserCreate, UserResponse, Token, UserLogin
+from app.crud.user import create_user, get_user_by_email, authenticate_user
 from app.api.deps import get_current_active_user
 from app.models.user import User
 
@@ -76,3 +76,31 @@ async def login_for_access_token(
 @router.get("/me", response_model=UserResponse)
 async def read_users_me(current_user: User = Depends(get_current_active_user)):
     return current_user
+
+@router.delete("/delete-account", status_code=204)
+async def delete_user_account(
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db)
+):
+    """Delete the current user's account permanently."""
+    try:
+        # Delete user's product analyses first (due to foreign key constraints)
+        from app.models.user import ProductAnalysis
+        db.query(ProductAnalysis).filter(ProductAnalysis.user_id == current_user.id).delete()
+        
+        # Delete the user
+        db.delete(current_user)
+        db.commit()
+        
+        return {"message": "Account deleted successfully"}
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(
+            status_code=500,
+            detail="Failed to delete account. Please try again."
+        )
+
+@router.post("/logout")
+async def logout(current_user: User = Depends(get_current_active_user)):
+    """Logout endpoint (token invalidation handled on client side)."""
+    return {"message": "Logged out successfully"}

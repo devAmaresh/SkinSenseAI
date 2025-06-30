@@ -14,7 +14,6 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { StatusBar } from 'expo-status-bar';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import ApiService from '../services/api';
-import ConnectionTest from '../components/ConnectionTest'; // Add this for debugging
 
 export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState('');
@@ -88,8 +87,7 @@ export default function LoginScreen({ navigation }) {
             contentContainerStyle={{ flexGrow: 1 }}
             showsVerticalScrollIndicator={false}
           >
-            {/* Connection Test (Development Only) */}
-            {showConnectionTest && <ConnectionTest />}
+
             
             {/* Back Button */}
             <TouchableOpacity

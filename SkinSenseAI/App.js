@@ -11,6 +11,8 @@ import SignupScreen from './src/screens/SignupScreen';
 import ForgotPasswordScreen from './src/screens/ForgotPasswordScreen';
 import SkinTypeQuestionsScreen from './src/screens/SkinTypeQuestionsScreen';
 import HomeScreen from './src/screens/HomeScreen';
+import ProfileScreen from './src/screens/ProfileScreen';
+import ProductAnalysisScreen from './src/screens/ProductAnalysisScreen';
 
 const Stack = createStackNavigator();
 
@@ -32,6 +34,8 @@ export default function App() {
         <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
         <Stack.Screen name="SkinTypeQuestions" component={SkinTypeQuestionsScreen} />
         <Stack.Screen name="Home" component={HomeScreen} />
+        <Stack.Screen name="Profile" component={ProfileScreen} />
+        <Stack.Screen name="ProductAnalysis" component={ProductAnalysisScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

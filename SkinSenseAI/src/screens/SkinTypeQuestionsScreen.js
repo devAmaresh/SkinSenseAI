@@ -10,6 +10,7 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { StatusBar } from 'expo-status-bar';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import ApiService from '../services/api';
 
 const skinTypeQuestions = [
   {
@@ -58,6 +59,7 @@ export default function SkinTypeQuestionsScreen({ navigation }) {
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState({});
   const [selectedOption, setSelectedOption] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleOptionSelect = (optionId) => {
     setSelectedOption(optionId);
@@ -79,8 +81,51 @@ export default function SkinTypeQuestionsScreen({ navigation }) {
       setCurrentQuestion(currentQuestion + 1);
       setSelectedOption(null);
     } else {
-      // All questions answered, navigate to home
-      navigation.navigate('Home');
+      // All questions answered, submit assessment
+      submitAssessment(newAnswers);
+    }
+  };
+
+  const submitAssessment = async (finalAnswers) => {
+    setIsSubmitting(true);
+    
+    try {
+      const response = await ApiService.submitSkinAssessment(finalAnswers);
+      
+      Alert.alert(
+        'Assessment Complete!',
+        `Your skin type has been identified as: ${response.skin_type.toUpperCase()}\n\nYou can now start analyzing products for your skin!`,
+        [
+          {
+            text: 'View Results',
+            onPress: () => navigation.navigate('SkinProfile', { skinData: response })
+          },
+          {
+            text: 'Go to Home',
+            onPress: () => navigation.navigate('Home'),
+            style: 'default'
+          }
+        ]
+      );
+    } catch (error) {
+      console.error('Assessment submission error:', error);
+      Alert.alert(
+        'Assessment Failed',
+        error.message || 'Failed to submit assessment. Please try again.',
+        [
+          {
+            text: 'Retry',
+            onPress: () => submitAssessment(finalAnswers)
+          },
+          {
+            text: 'Skip for Now',
+            onPress: () => navigation.navigate('Home'),
+            style: 'cancel'
+          }
+        ]
+      );
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -163,6 +208,7 @@ export default function SkinTypeQuestionsScreen({ navigation }) {
               <TouchableOpacity
                 key={option.id}
                 onPress={() => handleOptionSelect(option.id)}
+                disabled={isSubmitting}
                 className="p-4 rounded-2xl flex-row items-center"
                 style={{
                   backgroundColor: selectedOption === option.id
@@ -172,6 +218,7 @@ export default function SkinTypeQuestionsScreen({ navigation }) {
                   borderColor: selectedOption === option.id
                     ? 'rgba(0, 245, 255, 0.3)'
                     : 'rgba(255, 255, 255, 0.08)',
+                  opacity: isSubmitting ? 0.6 : 1,
                 }}
               >
                 <View 
@@ -210,21 +257,21 @@ export default function SkinTypeQuestionsScreen({ navigation }) {
           <View className="px-6 py-8 flex-row justify-between">
             <TouchableOpacity
               onPress={handlePrevious}
-              disabled={currentQuestion === 0}
+              disabled={currentQuestion === 0 || isSubmitting}
               className="px-6 py-3 rounded-2xl"
               style={{
-                backgroundColor: currentQuestion === 0
+                backgroundColor: (currentQuestion === 0 || isSubmitting)
                   ? 'rgba(255, 255, 255, 0.03)'
                   : 'rgba(255, 255, 255, 0.05)',
                 borderWidth: 1,
-                borderColor: currentQuestion === 0
+                borderColor: (currentQuestion === 0 || isSubmitting)
                   ? 'rgba(255, 255, 255, 0.05)'
                   : 'rgba(255, 255, 255, 0.1)',
               }}
             >
               <Text 
                 className={`text-lg font-semibold ${
-                  currentQuestion === 0 ? 'text-gray-600' : 'text-white'
+                  (currentQuestion === 0 || isSubmitting) ? 'text-gray-600' : 'text-white'
                 }`}
               >
                 Previous
@@ -233,7 +280,9 @@ export default function SkinTypeQuestionsScreen({ navigation }) {
 
             <TouchableOpacity
               onPress={handleNext}
+              disabled={isSubmitting}
               className="rounded-2xl px-8 py-3 overflow-hidden"
+              style={{ opacity: isSubmitting ? 0.6 : 1 }}
             >
               <LinearGradient
                 colors={['#00f5ff', '#0080ff', '#8000ff']}
@@ -242,7 +291,12 @@ export default function SkinTypeQuestionsScreen({ navigation }) {
                 className="px-8 py-3 rounded-2xl"
               >
                 <Text className="text-black text-lg font-bold">
-                  {currentQuestion === skinTypeQuestions.length - 1 ? 'Finish' : 'Next'}
+                  {isSubmitting 
+                    ? 'Analyzing...' 
+                    : currentQuestion === skinTypeQuestions.length - 1 
+                      ? 'Finish' 
+                      : 'Next'
+                  }
                 </Text>
               </LinearGradient>
             </TouchableOpacity>
