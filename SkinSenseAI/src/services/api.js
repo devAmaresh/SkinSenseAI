@@ -1,5 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Platform } from 'react-native';
+import { LOCAL_IP_ADDRESS } from '@env';
 
 // Get the correct API URL based on environment
 const getApiBaseUrl = () => {
@@ -11,7 +12,7 @@ const getApiBaseUrl = () => {
       return 'http://192.168.159.70:8000/api/v1'; // Android emulator
     } else {
       // For Expo Go or web
-      return 'http://192.168.1.100:8000/api/v1'; // Replace with your computer's IP
+      return `http://${LOCAL_IP_ADDRESS}:8000/api/v1`; // Replace with your computer's IP
     }
   } else {
     // Production URL

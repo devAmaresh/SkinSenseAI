@@ -21,6 +21,7 @@
     "nativewind": "^4.1.23",
     "react": "19.0.0",
     "react-native": "0.79.4",
+    "react-native-dotenv": "^3.4.11",
     "react-native-gesture-handler": "^2.24.0",
     "react-native-heroicons": "^4.0.0",
     "react-native-reanimated": "~3.17.4",
