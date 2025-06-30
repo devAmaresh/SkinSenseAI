@@ -2,16 +2,21 @@ from datetime import timedelta
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
+from pydantic import BaseModel
 
 from app.core.database import get_db
 from app.core.config import settings
 from app.core.security import create_access_token, verify_password
-from app.schemas.user import UserCreate, UserResponse, Token, UserLogin
-from app.crud.user import create_user, get_user_by_email, authenticate_user
+from app.schemas.user import UserCreate, UserResponse, UserUpdate, Token, UserLogin
+from app.crud.user import create_user, get_user_by_email, authenticate_user, update_user_profile, change_user_password
 from app.api.deps import get_current_active_user
 from app.models.user import User
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
+
+class PasswordChange(BaseModel):
+    current_password: str
+    new_password: str
 
 @router.post("/register", response_model=Token)
 async def register(user: UserCreate, db: Session = Depends(get_db)):
@@ -104,3 +109,60 @@ async def delete_user_account(
 async def logout(current_user: User = Depends(get_current_active_user)):
     """Logout endpoint (token invalidation handled on client side)."""
     return {"message": "Logged out successfully"}
+
+@router.put("/profile", response_model=UserResponse)
+async def update_profile(
+    user_update: UserUpdate,
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db)
+):
+    """Update user profile information (excluding email)."""
+    try:
+        updated_user = update_user_profile(db, current_user.id, user_update)
+        if not updated_user:
+            raise HTTPException(
+                status_code=404,
+                detail="User not found"
+            )
+        return updated_user
+    except ValueError as e:
+        raise HTTPException(
+            status_code=400,
+            detail=str(e)
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail="Failed to update profile"
+        )
+
+@router.put("/change-password")
+async def change_password(
+    password_data: PasswordChange,
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db)
+):
+    """Change user password."""
+    try:
+        updated_user = change_user_password(
+            db,
+            current_user.id,
+            password_data.current_password,
+            password_data.new_password
+        )
+        if not updated_user:
+            raise HTTPException(
+                status_code=404,
+                detail="User not found"
+            )
+        return {"message": "Password changed successfully"}
+    except ValueError as e:
+        raise HTTPException(
+            status_code=400,
+            detail=str(e)
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail="Failed to change password"
+        )

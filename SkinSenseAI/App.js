@@ -12,7 +12,10 @@ import ForgotPasswordScreen from './src/screens/ForgotPasswordScreen';
 import SkinTypeQuestionsScreen from './src/screens/SkinTypeQuestionsScreen';
 import HomeScreen from './src/screens/HomeScreen';
 import ProfileScreen from './src/screens/ProfileScreen';
+import EditProfileScreen from './src/screens/EditProfileScreen';
 import ProductAnalysisScreen from './src/screens/ProductAnalysisScreen';
+import MyAnalysesScreen from './src/screens/MyAnalysesScreen';
+import AnalysisResultScreen from './src/screens/AnalysisResultScreen';
 
 const Stack = createStackNavigator();
 
@@ -35,7 +38,10 @@ export default function App() {
         <Stack.Screen name="SkinTypeQuestions" component={SkinTypeQuestionsScreen} />
         <Stack.Screen name="Home" component={HomeScreen} />
         <Stack.Screen name="Profile" component={ProfileScreen} />
+        <Stack.Screen name="EditProfile" component={EditProfileScreen} />
         <Stack.Screen name="ProductAnalysis" component={ProductAnalysisScreen} />
+        <Stack.Screen name="MyAnalyses" component={MyAnalysesScreen} />
+        <Stack.Screen name="AnalysisResult" component={AnalysisResultScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

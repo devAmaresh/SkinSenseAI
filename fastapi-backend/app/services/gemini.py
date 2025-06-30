@@ -1,5 +1,9 @@
 import google.generativeai as genai
-from typing import Dict, Any, Optional
+import os
+from PIL import Image
+import io
+import base64
+from typing import Optional, Dict, Any
 import json
 import logging
 from app.core.config import settings
@@ -11,8 +15,65 @@ genai.configure(api_key="YOUR_GEMINI_API_KEY")  # Add this to your .env file
 
 class GeminiAnalyzer:
     def __init__(self):
-        self.model = genai.GenerativeModel('gemini-pro')
-    
+        # Configure Gemini API
+        genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+        self.model = genai.GenerativeModel('gemini-1.5-flash')
+
+    def analyze_product_image(self, image_data: bytes, skin_type: str) -> Dict[str, Any]:
+        """Analyze product ingredients from image using Gemini Vision."""
+        try:
+            # Convert bytes to PIL Image
+            image = Image.open(io.BytesIO(image_data))
+            
+            prompt = f"""
+            Analyze this product ingredients image for someone with {skin_type} skin type.
+            
+            Please extract the ingredients list and provide:
+            1. Product name (if visible)
+            2. Complete ingredients list
+            3. Suitability score (1-10) for {skin_type} skin
+            4. Beneficial ingredients for this skin type
+            5. Problematic ingredients to watch out for
+            6. Recommendation summary
+            7. Any warnings or precautions
+            8. Usage tips
+            
+            Return the response in this exact JSON format:
+            {{
+                "product_name": "extracted product name",
+                "ingredients_list": ["ingredient1", "ingredient2", ...],
+                "suitability_score": 8,
+                "beneficial_ingredients": ["ingredient1", "ingredient2"],
+                "problematic_ingredients": ["ingredient1", "ingredient2"],
+                "recommendation": "detailed recommendation text",
+                "warnings": "any warnings or precautions",
+                "skin_benefits": ["benefit1", "benefit2"],
+                "usage_tips": "how to use this product properly"
+            }}
+            """
+            
+            response = self.model.generate_content([prompt, image])
+            
+            # Parse JSON response
+            import json
+            analysis_result = json.loads(response.text.strip())
+            
+            return analysis_result
+            
+        except Exception as e:
+            print(f"Gemini analysis error: {e}")
+            return {
+                "product_name": "Unknown Product",
+                "ingredients_list": [],
+                "suitability_score": 5,
+                "beneficial_ingredients": [],
+                "problematic_ingredients": [],
+                "recommendation": "Unable to analyze product. Please try again.",
+                "warnings": "Analysis failed",
+                "skin_benefits": [],
+                "usage_tips": "Consult with a dermatologist for personalized advice."
+            }
+
     def analyze_product_for_skin_type(
         self, 
         skin_type: str, 

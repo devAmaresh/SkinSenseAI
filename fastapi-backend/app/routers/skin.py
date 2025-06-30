@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form
 from sqlalchemy.orm import Session
 from typing import Optional, List
 
@@ -57,9 +57,9 @@ async def get_skin_profile(
 
 @router.post("/analyze-product", response_model=ProductAnalysisResponse)
 async def analyze_product(
-    product_name: Optional[str] = None,
-    ingredients: Optional[str] = None,
     product_image: Optional[UploadFile] = File(None),
+    product_name: Optional[str] = Form(None),
+    ingredients: Optional[str] = Form(None),
     current_user: User = Depends(get_current_active_user),
     db: Session = Depends(get_db)
 ):
@@ -71,15 +71,35 @@ async def analyze_product(
             detail="Please complete skin assessment first before analyzing products."
         )
     
+    if not product_image and not product_name and not ingredients:
+        raise HTTPException(
+            status_code=400,
+            detail="Please provide either a product image, product name, or ingredients list."
+        )
+    
     # Initialize Gemini analyzer
     analyzer = GeminiAnalyzer()
     
     # Analyze product
-    analysis_result = analyzer.analyze_product_for_skin_type(
-        skin_type=current_user.skin_type,
-        product_name=product_name,
-        ingredients=ingredients
-    )
+    if product_image:
+        # Image-based analysis
+        image_data = await product_image.read()
+        analysis_result = analyzer.analyze_product_image(image_data, current_user.skin_type)
+        
+        # Use extracted product name if not provided
+        if not product_name and analysis_result.get("product_name"):
+            product_name = analysis_result["product_name"]
+        
+        # Use extracted ingredients if not provided
+        if not ingredients and analysis_result.get("ingredients_list"):
+            ingredients = ", ".join(analysis_result["ingredients_list"])
+    else:
+        # Text-based analysis
+        analysis_result = analyzer.analyze_product_for_skin_type(
+            skin_type=current_user.skin_type,
+            product_name=product_name,
+            ingredients=ingredients
+        )
     
     # Save analysis to database
     analysis_data = {

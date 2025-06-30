@@ -277,7 +277,7 @@ class ApiService {
     }
   }
 
-  async analyzeProduct(productName = null, ingredients = null) {
+  async analyzeProduct(productName = null, ingredients = null, productImage = null) {
     try {
       const formData = new FormData();
       
@@ -289,16 +289,30 @@ class ApiService {
         formData.append('ingredients', ingredients);
       }
 
-      const response = await this.makeRequest('/skin/analyze-product', {
+      if (productImage) {
+        formData.append('product_image', {
+          uri: productImage.uri,
+          type: productImage.type || 'image/jpeg',
+          name: productImage.fileName || 'product_image.jpg',
+        });
+      }
+
+      const token = await this.getAuthToken();
+      const response = await fetch(`${this.baseURL}/skin/analyze-product`, {
         method: 'POST',
         headers: {
+          'Authorization': `Bearer ${token}`,
           // Don't set Content-Type for FormData, let the browser set it
-          'Authorization': `Bearer ${await this.getAuthToken()}`,
         },
         body: formData,
       });
 
-      return response;
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || `HTTP error! status: ${response.status}`);
+      }
+
+      return await response.json();
     } catch (error) {
       console.error('Product analysis error:', error);
       throw error;
@@ -310,6 +324,37 @@ class ApiService {
       return await this.makeRequest(`/skin/analyses?skip=${skip}&limit=${limit}`);
     } catch (error) {
       console.error('Get analyses error:', error);
+      throw error;
+    }
+  }
+
+  async updateProfile(profileData) {
+    try {
+      const response = await this.makeRequest('/auth/profile', {
+        method: 'PUT',
+        body: JSON.stringify(profileData),
+      });
+
+      return response;
+    } catch (error) {
+      console.error('Update profile error:', error);
+      throw error;
+    }
+  }
+
+  async changePassword(currentPassword, newPassword) {
+    try {
+      const response = await this.makeRequest('/auth/change-password', {
+        method: 'PUT',
+        body: JSON.stringify({
+          current_password: currentPassword,
+          new_password: newPassword,
+        }),
+      });
+
+      return response;
+    } catch (error) {
+      console.error('Change password error:', error);
       throw error;
     }
   }

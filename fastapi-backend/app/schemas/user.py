@@ -1,5 +1,5 @@
 from pydantic import BaseModel, EmailStr
-from typing import Optional
+from typing import Optional, Dict
 from datetime import datetime
 
 class UserBase(BaseModel):
@@ -14,10 +14,20 @@ class UserLogin(BaseModel):
     email: EmailStr
     password: str
 
+class UserUpdate(BaseModel):
+    full_name: Optional[str] = None
+    username: Optional[str] = None
+    
+    class Config:
+        from_attributes = True
+
 class UserResponse(UserBase):
     id: int
     is_active: bool
     is_verified: bool
+    skin_type: Optional[str]
+    skin_assessment_answers: Optional[Dict[int, str]]
+    skin_concerns: Optional[str]
     created_at: datetime
     
     class Config:
