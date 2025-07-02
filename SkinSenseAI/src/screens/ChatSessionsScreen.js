@@ -12,6 +12,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { StatusBar } from "expo-status-bar";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import ApiService from "../services/api";
+import { Skeleton, TextSkeleton } from "../components/Skeleton";
 
 export default function ChatSessionsScreen({ navigation }) {
   const [sessions, setSessions] = useState([]);
@@ -82,36 +83,8 @@ export default function ChatSessionsScreen({ navigation }) {
     navigation.navigate("Chat");
   };
 
-  if (isLoading) {
-    return (
-      <SafeAreaView className="flex-1">
-        <StatusBar style="light" />
-        <LinearGradient
-          colors={["#000000", "#1a1a1a", "#000000"]}
-          className="flex-1 justify-center items-center"
-        >
-          <View className="items-center">
-            <View
-              className="w-16 h-16 rounded-full items-center justify-center mb-4"
-              style={{
-                backgroundColor: "rgba(0, 245, 255, 0.1)",
-                borderWidth: 2,
-                borderColor: "rgba(0, 245, 255, 0.3)",
-              }}
-            >
-              <Ionicons name="chatbubbles" size={32} color="#00f5ff" />
-            </View>
-            <Text className="text-white text-lg font-semibold">
-              Loading your chats...
-            </Text>
-          </View>
-        </LinearGradient>
-      </SafeAreaView>
-    );
-  }
-
   return (
-    <SafeAreaView className="flex-1">
+    <SafeAreaView className="flex-1" edges={['top']} style={{ backgroundColor: '#000000' }}>
       <StatusBar style="light" />
       <LinearGradient
         colors={["#000000", "#1a1a1a", "#000000"]}
@@ -189,7 +162,35 @@ export default function ChatSessionsScreen({ navigation }) {
 
           {/* Chat Sessions */}
           <View className="px-6 pb-8">
-            {sessions.length === 0 ? (
+            {isLoading ? (
+              // Skeleton for chat sessions
+              <View className="space-y-3">
+                {Array.from({ length: 4 }).map((_, index) => (
+                  <View
+                    key={index}
+                    className="rounded-2xl p-4"
+                    style={{
+                      backgroundColor: "rgba(255, 255, 255, 0.03)",
+                      borderWidth: 1,
+                      borderColor: "rgba(255, 255, 255, 0.08)",
+                    }}
+                  >
+                    <View className="flex-row items-start justify-between">
+                      <View className="flex-1 mr-3">
+                        <Skeleton width="70%" height={20} borderRadius={10} style={{ marginBottom: 8 }} />
+                        <Skeleton width="100%" height={16} borderRadius={8} style={{ marginBottom: 4 }} />
+                        <Skeleton width="80%" height={16} borderRadius={8} style={{ marginBottom: 8 }} />
+                        <View className="flex-row items-center justify-between">
+                          <Skeleton width="60%" height={12} borderRadius={6} />
+                        </View>
+                      </View>
+
+                      <Skeleton width={32} height={32} borderRadius={16} />
+                    </View>
+                  </View>
+                ))}
+              </View>
+            ) : sessions.length === 0 ? (
               <View
                 className="rounded-2xl p-6 items-center"
                 style={{

@@ -12,9 +12,11 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import ApiService from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
+import { Skeleton, TextSkeleton } from '../components/Skeleton';
 
 export default function HomeScreen({ navigation }) {
   const [skinProfile, setSkinProfile] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
   const { user, logout } = useAuth();
 
   useEffect(() => {
@@ -23,11 +25,14 @@ export default function HomeScreen({ navigation }) {
 
   const loadSkinProfile = async () => {
     try {
+      setIsLoading(true);
       const skinData = await ApiService.getSkinProfile();
       setSkinProfile(skinData);
       console.log('Skin profile loaded:', skinData);
     } catch (skinError) {
       console.log('No skin profile found');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -78,7 +83,7 @@ export default function HomeScreen({ navigation }) {
   ];
 
   return (
-    <SafeAreaView className="flex-1" >
+    <SafeAreaView className="flex-1" edges={['top']} style={{ backgroundColor: '#000000' }}>
       <StatusBar style="light" />
       <LinearGradient
         colors={['#000000', '#1a1a1a', '#000000']}
@@ -90,22 +95,34 @@ export default function HomeScreen({ navigation }) {
             <View className="flex-row justify-between items-center">
               <View className="flex-1">
                 <Text className="text-gray-400 text-lg">Welcome back!</Text>
-                <Text className="text-2xl font-bold text-white">
-                  {user?.full_name || 'User'}
-                </Text>
-                {skinProfile && (
-                  <View 
-                    className="mt-2 px-3 py-1 rounded-full self-start"
-                    style={{
-                      backgroundColor: 'rgba(0, 245, 255, 0.1)',
-                      borderWidth: 1,
-                      borderColor: 'rgba(0, 245, 255, 0.2)',
-                    }}
-                  >
-                    <Text className="text-cyan-400 text-sm font-medium">
-                      {skinProfile.skin_type.toUpperCase()} SKIN
-                    </Text>
-                  </View>
+                
+                {/* Name with skeleton */}
+                {isLoading ? (
+                  <Skeleton width={160} height={28} borderRadius={14} style={{ marginTop: 4, marginBottom: 8 }} />
+                ) : (
+                  <Text className="text-2xl font-bold text-white">
+                    {user?.full_name || 'User'}
+                  </Text>
+                )}
+
+                {/* Skin type badge with skeleton */}
+                {isLoading ? (
+                  <Skeleton width={100} height={20} borderRadius={10} style={{ marginTop: 8 }} />
+                ) : (
+                  skinProfile && (
+                    <View 
+                      className="mt-2 px-3 py-1 rounded-full self-start"
+                      style={{
+                        backgroundColor: 'rgba(0, 245, 255, 0.1)',
+                        borderWidth: 1,
+                        borderColor: 'rgba(0, 245, 255, 0.2)',
+                      }}
+                    >
+                      <Text className="text-cyan-400 text-sm font-medium">
+                        {skinProfile.skin_type.toUpperCase()} SKIN
+                      </Text>
+                    </View>
+                  )
                 )}
               </View>
               
@@ -169,7 +186,7 @@ export default function HomeScreen({ navigation }) {
           </View>
 
           {/* Skin Assessment Card */}
-          {!skinProfile && (
+          {!isLoading && !skinProfile && (
             <View className="px-6 mb-8">
               <TouchableOpacity
                 onPress={() => navigation.navigate('SkinTypeQuestions')}
@@ -197,6 +214,25 @@ export default function HomeScreen({ navigation }) {
             </View>
           )}
 
+          {/* Loading skeleton for assessment card */}
+          {isLoading && (
+            <View className="px-6 mb-8">
+              <View
+                className="rounded-2xl p-6"
+                style={{
+                  backgroundColor: 'rgba(0, 245, 255, 0.05)',
+                  borderWidth: 1,
+                  borderColor: 'rgba(0, 245, 255, 0.1)',
+                }}
+              >
+                <Skeleton width="80%" height={24} borderRadius={12} style={{ marginBottom: 12 }} />
+                <Skeleton width="100%" height={16} borderRadius={8} style={{ marginBottom: 8 }} />
+                <Skeleton width="90%" height={16} borderRadius={8} style={{ marginBottom: 12 }} />
+                <Skeleton width="40%" height={20} borderRadius={10} />
+              </View>
+            </View>
+          )}
+
           {/* Main Content */}
           <View 
             className="flex-1 rounded-t-3xl px-6 py-8"
@@ -206,11 +242,17 @@ export default function HomeScreen({ navigation }) {
               borderTopColor: 'rgba(255, 255, 255, 0.1)',
             }}
           >
-            <Text className="text-2xl font-bold text-white mb-6">
-              {skinProfile ? "Today's Recommendations" : "Getting Started"}
-            </Text>
+            {/* Title with skeleton */}
+            {isLoading ? (
+              <Skeleton width="60%" height={32} borderRadius={16} style={{ marginBottom: 24 }} />
+            ) : (
+              <Text className="text-2xl font-bold text-white mb-6">
+                {skinProfile ? "Today's Recommendations" : "Getting Started"}
+              </Text>
+            )}
             
-            {skinProfile ? (
+            {/* Content card with skeleton */}
+            {isLoading ? (
               <View 
                 className="rounded-2xl p-6 mb-6"
                 style={{
@@ -219,62 +261,102 @@ export default function HomeScreen({ navigation }) {
                   borderColor: 'rgba(0, 245, 255, 0.1)',
                 }}
               >
-                <Text className="text-lg font-semibold text-cyan-400 mb-2">
-                  Your Skin Type: {skinProfile.skin_type.toUpperCase()}
-                </Text>
-                <Text className="text-gray-300">
-                  Based on your assessment, we've personalized your skincare routine.
-                </Text>
+                <Skeleton width="70%" height={24} borderRadius={12} style={{ marginBottom: 8 }} />
+                <Skeleton width="100%" height={16} borderRadius={8} style={{ marginBottom: 4 }} />
+                <Skeleton width="80%" height={16} borderRadius={8} />
               </View>
             ) : (
-              <View 
-                className="rounded-2xl p-6 mb-6"
-                style={{
-                  backgroundColor: 'rgba(128, 0, 255, 0.05)',
-                  borderWidth: 1,
-                  borderColor: 'rgba(128, 0, 255, 0.1)',
-                }}
-              >
-                <Text className="text-lg font-semibold text-purple-400 mb-2">
-                  Welcome to SkinSenseAI!
-                </Text>
-                <Text className="text-gray-300">
-                  Complete your skin assessment to unlock personalized features.
-                </Text>
-              </View>
-            )}
-
-            <View className="space-y-4">
-              {skinProfile?.routine?.map((routine, index) => (
+              skinProfile ? (
                 <View 
-                  key={index}
-                  className="rounded-2xl p-4"
+                  className="rounded-2xl p-6 mb-6"
                   style={{
-                    backgroundColor: 'rgba(255, 255, 255, 0.03)',
+                    backgroundColor: 'rgba(0, 245, 255, 0.05)',
                     borderWidth: 1,
-                    borderColor: 'rgba(255, 255, 255, 0.08)',
+                    borderColor: 'rgba(0, 245, 255, 0.1)',
                   }}
                 >
-                  <View className="flex-row items-center mb-2">
-                    <View 
-                      className="w-8 h-8 rounded-full items-center justify-center mr-3"
-                      style={{
-                        backgroundColor: `${routine.color}20`,
-                        borderWidth: 1,
-                        borderColor: `${routine.color}40`,
-                      }}
-                    >
-                      <Ionicons name={routine.icon} size={16} color={routine.color} />
-                    </View>
-                    <Text className="text-lg font-semibold text-white">
-                      {routine.title}
-                    </Text>
-                  </View>
-                  <Text className="text-gray-300 ml-11">
-                    {routine.description}
+                  <Text className="text-lg font-semibold text-cyan-400 mb-2">
+                    Your Skin Type: {skinProfile.skin_type.toUpperCase()}
+                  </Text>
+                  <Text className="text-gray-300">
+                    Based on your assessment, we've personalized your skincare routine.
                   </Text>
                 </View>
-              ))}
+              ) : (
+                <View 
+                  className="rounded-2xl p-6 mb-6"
+                  style={{
+                    backgroundColor: 'rgba(128, 0, 255, 0.05)',
+                    borderWidth: 1,
+                    borderColor: 'rgba(128, 0, 255, 0.1)',
+                  }}
+                >
+                  <Text className="text-lg font-semibold text-purple-400 mb-2">
+                    Welcome to SkinSenseAI!
+                  </Text>
+                  <Text className="text-gray-300">
+                    Complete your skin assessment to unlock personalized features.
+                  </Text>
+                </View>
+              )
+            )}
+
+            {/* Routine cards with skeleton */}
+            <View className="space-y-4">
+              {isLoading ? (
+                // Skeleton routine cards
+                Array.from({ length: 3 }).map((_, index) => (
+                  <View 
+                    key={index}
+                    className="rounded-2xl p-4"
+                    style={{
+                      backgroundColor: 'rgba(255, 255, 255, 0.03)',
+                      borderWidth: 1,
+                      borderColor: 'rgba(255, 255, 255, 0.08)',
+                    }}
+                  >
+                    <View className="flex-row items-center mb-2">
+                      <Skeleton width={32} height={32} borderRadius={16} style={{ marginRight: 12 }} />
+                      <Skeleton width="40%" height={20} borderRadius={10} />
+                    </View>
+                    <View style={{ marginLeft: 44 }}>
+                      <Skeleton width="90%" height={16} borderRadius={8} style={{ marginBottom: 4 }} />
+                      <Skeleton width="70%" height={16} borderRadius={8} />
+                    </View>
+                  </View>
+                ))
+              ) : (
+                skinProfile?.routine?.map((routine, index) => (
+                  <View 
+                    key={index}
+                    className="rounded-2xl p-4"
+                    style={{
+                      backgroundColor: 'rgba(255, 255, 255, 0.03)',
+                      borderWidth: 1,
+                      borderColor: 'rgba(255, 255, 255, 0.08)',
+                    }}
+                  >
+                    <View className="flex-row items-center mb-2">
+                      <View 
+                        className="w-8 h-8 rounded-full items-center justify-center mr-3"
+                        style={{
+                          backgroundColor: `${routine.color}20`,
+                          borderWidth: 1,
+                          borderColor: `${routine.color}40`,
+                        }}
+                      >
+                        <Ionicons name={routine.icon} size={16} color={routine.color} />
+                      </View>
+                      <Text className="text-lg font-semibold text-white">
+                        {routine.title}
+                      </Text>
+                    </View>
+                    <Text className="text-gray-300 ml-11">
+                      {routine.description}
+                    </Text>
+                  </View>
+                ))
+              )}
             </View>
           </View>
         </ScrollView>

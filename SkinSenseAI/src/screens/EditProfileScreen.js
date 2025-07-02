@@ -14,6 +14,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { StatusBar } from 'expo-status-bar';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import ApiService from '../services/api';
+import { Skeleton, TextSkeleton } from '../components/Skeleton';
 
 export default function EditProfileScreen({ navigation }) {
   const [user, setUser] = useState(null);
@@ -137,26 +138,18 @@ export default function EditProfileScreen({ navigation }) {
   };
 
   const togglePasswordVisibility = (field) => {
-    setShowPasswords(prev => ({
+    setShowPasswords((prev) => ({
       ...prev,
       [field]: !prev[field],
     }));
   };
 
-  if (isLoading) {
-    return (
-      <SafeAreaView className="flex-1">
-        <LinearGradient colors={['#000000', '#1a1a1a', '#000000']} className="flex-1">
-          <View className="flex-1 justify-center items-center">
-            <Text className="text-white text-lg">Loading profile...</Text>
-          </View>
-        </LinearGradient>
-      </SafeAreaView>
-    );
-  }
-
   return (
-    <SafeAreaView className="flex-1">
+    <SafeAreaView
+      className="flex-1"
+      edges={['top']}
+      style={{ backgroundColor: '#000000' }}
+    >
       <StatusBar style="light" />
       <LinearGradient
         colors={['#000000', '#1a1a1a', '#000000']}
@@ -184,15 +177,16 @@ export default function EditProfileScreen({ navigation }) {
 
                 <TouchableOpacity
                   onPress={handleUpdateProfile}
-                  disabled={isSaving}
+                  disabled={isSaving || isLoading}
                   className="px-6 py-2 rounded-2xl"
                   style={{
-                    backgroundColor: isSaving 
-                      ? 'rgba(0, 245, 255, 0.3)' 
-                      : 'rgba(0, 245, 255, 0.1)',
+                    backgroundColor:
+                      isSaving || isLoading
+                        ? 'rgba(0, 245, 255, 0.3)'
+                        : 'rgba(0, 245, 255, 0.1)',
                     borderWidth: 1,
                     borderColor: 'rgba(0, 245, 255, 0.2)',
-                    opacity: isSaving ? 0.7 : 1,
+                    opacity: (isSaving || isLoading) ? 0.7 : 1,
                   }}
                 >
                   <Text className="text-cyan-400 font-semibold">
@@ -212,7 +206,7 @@ export default function EditProfileScreen({ navigation }) {
             <View className="px-6 space-y-6">
               {/* Profile Picture Section */}
               <View className="items-center mb-6">
-                <View 
+                <View
                   className="w-24 h-24 rounded-full items-center justify-center mb-4"
                   style={{
                     backgroundColor: 'rgba(255, 255, 255, 0.05)',
@@ -240,7 +234,7 @@ export default function EditProfileScreen({ navigation }) {
               </View>
 
               {/* Basic Information */}
-              <View 
+              <View
                 className="rounded-2xl p-6"
                 style={{
                   backgroundColor: 'rgba(255, 255, 255, 0.03)',
@@ -257,7 +251,7 @@ export default function EditProfileScreen({ navigation }) {
                   <Text className="text-gray-300 text-sm font-medium ml-1">
                     Full Name
                   </Text>
-                  <View 
+                  <View
                     className="rounded-2xl px-4 py-4"
                     style={{
                       backgroundColor: 'rgba(255, 255, 255, 0.03)',
@@ -265,14 +259,20 @@ export default function EditProfileScreen({ navigation }) {
                       borderColor: 'rgba(255, 255, 255, 0.08)',
                     }}
                   >
-                    <TextInput
-                      className="text-white text-base"
-                      placeholder="Enter your full name"
-                      placeholderTextColor="rgba(255,255,255,0.4)"
-                      value={formData.full_name}
-                      onChangeText={(text) => setFormData(prev => ({ ...prev, full_name: text }))}
-                      editable={!isSaving}
-                    />
+                    {isLoading ? (
+                      <Skeleton width="80%" height={20} borderRadius={10} />
+                    ) : (
+                      <TextInput
+                        className="text-white text-base"
+                        placeholder="Enter your full name"
+                        placeholderTextColor="rgba(255,255,255,0.4)"
+                        value={formData.full_name}
+                        onChangeText={(text) =>
+                          setFormData((prev) => ({ ...prev, full_name: text }))
+                        }
+                        editable={!isSaving}
+                      />
+                    )}
                   </View>
                 </View>
 
@@ -281,7 +281,7 @@ export default function EditProfileScreen({ navigation }) {
                   <Text className="text-gray-300 text-sm font-medium ml-1">
                     Username
                   </Text>
-                  <View 
+                  <View
                     className="rounded-2xl px-4 py-4"
                     style={{
                       backgroundColor: 'rgba(255, 255, 255, 0.03)',
@@ -289,15 +289,21 @@ export default function EditProfileScreen({ navigation }) {
                       borderColor: 'rgba(255, 255, 255, 0.08)',
                     }}
                   >
-                    <TextInput
-                      className="text-white text-base"
-                      placeholder="Enter your username"
-                      placeholderTextColor="rgba(255,255,255,0.4)"
-                      value={formData.username}
-                      onChangeText={(text) => setFormData(prev => ({ ...prev, username: text }))}
-                      autoCapitalize="none"
-                      editable={!isSaving}
-                    />
+                    {isLoading ? (
+                      <Skeleton width="70%" height={20} borderRadius={10} />
+                    ) : (
+                      <TextInput
+                        className="text-white text-base"
+                        placeholder="Enter your username"
+                        placeholderTextColor="rgba(255,255,255,0.4)"
+                        value={formData.username}
+                        onChangeText={(text) =>
+                          setFormData((prev) => ({ ...prev, username: text }))
+                        }
+                        autoCapitalize="none"
+                        editable={!isSaving}
+                      />
+                    )}
                   </View>
                 </View>
 
@@ -306,7 +312,7 @@ export default function EditProfileScreen({ navigation }) {
                   <Text className="text-gray-300 text-sm font-medium ml-1">
                     Email Address
                   </Text>
-                  <View 
+                  <View
                     className="rounded-2xl px-4 py-4"
                     style={{
                       backgroundColor: 'rgba(255, 255, 255, 0.02)',
@@ -314,9 +320,13 @@ export default function EditProfileScreen({ navigation }) {
                       borderColor: 'rgba(255, 255, 255, 0.05)',
                     }}
                   >
-                    <Text className="text-gray-400 text-base">
-                      {user?.email}
-                    </Text>
+                    {isLoading ? (
+                      <Skeleton width="90%" height={20} borderRadius={10} />
+                    ) : (
+                      <Text className="text-gray-400 text-base">
+                        {user?.email}
+                      </Text>
+                    )}
                   </View>
                   <Text className="text-gray-500 text-xs ml-1">
                     Email cannot be changed for security reasons
@@ -325,7 +335,7 @@ export default function EditProfileScreen({ navigation }) {
               </View>
 
               {/* Password Section */}
-              <View 
+              <View
                 className="rounded-2xl overflow-hidden"
                 style={{
                   backgroundColor: 'rgba(255, 255, 255, 0.03)',
@@ -336,6 +346,7 @@ export default function EditProfileScreen({ navigation }) {
                 <TouchableOpacity
                   onPress={() => setShowPasswordSection(!showPasswordSection)}
                   className="p-6 flex-row justify-between items-center"
+                  disabled={isLoading}
                 >
                   <View>
                     <Text className="text-xl font-semibold text-white mb-1">
@@ -345,10 +356,10 @@ export default function EditProfileScreen({ navigation }) {
                       Update your account password
                     </Text>
                   </View>
-                  <Ionicons 
-                    name={showPasswordSection ? "chevron-up" : "chevron-down"} 
-                    size={24} 
-                    color="rgba(255,255,255,0.6)" 
+                  <Ionicons
+                    name={showPasswordSection ? 'chevron-up' : 'chevron-down'}
+                    size={24}
+                    color="rgba(255,255,255,0.6)"
                   />
                 </TouchableOpacity>
 
@@ -359,7 +370,7 @@ export default function EditProfileScreen({ navigation }) {
                       <Text className="text-gray-300 text-sm font-medium ml-1">
                         Current Password
                       </Text>
-                      <View 
+                      <View
                         className="rounded-2xl px-4 py-4 flex-row items-center"
                         style={{
                           backgroundColor: 'rgba(255, 255, 255, 0.03)',
@@ -372,7 +383,12 @@ export default function EditProfileScreen({ navigation }) {
                           placeholder="Enter current password"
                           placeholderTextColor="rgba(255,255,255,0.4)"
                           value={passwordData.current_password}
-                          onChangeText={(text) => setPasswordData(prev => ({ ...prev, current_password: text }))}
+                          onChangeText={(text) =>
+                            setPasswordData((prev) => ({
+                              ...prev,
+                              current_password: text,
+                            }))
+                          }
                           secureTextEntry={!showPasswords.current}
                           editable={!isChangingPassword}
                         />
@@ -380,10 +396,10 @@ export default function EditProfileScreen({ navigation }) {
                           onPress={() => togglePasswordVisibility('current')}
                           className="ml-3"
                         >
-                          <Ionicons 
-                            name={showPasswords.current ? "eye-off" : "eye"} 
-                            size={20} 
-                            color="rgba(255,255,255,0.6)" 
+                          <Ionicons
+                            name={showPasswords.current ? 'eye-off' : 'eye'}
+                            size={20}
+                            color="rgba(255,255,255,0.6)"
                           />
                         </TouchableOpacity>
                       </View>
@@ -394,7 +410,7 @@ export default function EditProfileScreen({ navigation }) {
                       <Text className="text-gray-300 text-sm font-medium ml-1">
                         New Password
                       </Text>
-                      <View 
+                      <View
                         className="rounded-2xl px-4 py-4 flex-row items-center"
                         style={{
                           backgroundColor: 'rgba(255, 255, 255, 0.03)',
@@ -407,7 +423,12 @@ export default function EditProfileScreen({ navigation }) {
                           placeholder="Enter new password"
                           placeholderTextColor="rgba(255,255,255,0.4)"
                           value={passwordData.new_password}
-                          onChangeText={(text) => setPasswordData(prev => ({ ...prev, new_password: text }))}
+                          onChangeText={(text) =>
+                            setPasswordData((prev) => ({
+                              ...prev,
+                              new_password: text,
+                            }))
+                          }
                           secureTextEntry={!showPasswords.new}
                           editable={!isChangingPassword}
                         />
@@ -415,10 +436,10 @@ export default function EditProfileScreen({ navigation }) {
                           onPress={() => togglePasswordVisibility('new')}
                           className="ml-3"
                         >
-                          <Ionicons 
-                            name={showPasswords.new ? "eye-off" : "eye"} 
-                            size={20} 
-                            color="rgba(255,255,255,0.6)" 
+                          <Ionicons
+                            name={showPasswords.new ? 'eye-off' : 'eye'}
+                            size={20}
+                            color="rgba(255,255,255,0.6)"
                           />
                         </TouchableOpacity>
                       </View>
@@ -429,7 +450,7 @@ export default function EditProfileScreen({ navigation }) {
                       <Text className="text-gray-300 text-sm font-medium ml-1">
                         Confirm New Password
                       </Text>
-                      <View 
+                      <View
                         className="rounded-2xl px-4 py-4 flex-row items-center"
                         style={{
                           backgroundColor: 'rgba(255, 255, 255, 0.03)',
@@ -442,7 +463,12 @@ export default function EditProfileScreen({ navigation }) {
                           placeholder="Confirm new password"
                           placeholderTextColor="rgba(255,255,255,0.4)"
                           value={passwordData.confirm_password}
-                          onChangeText={(text) => setPasswordData(prev => ({ ...prev, confirm_password: text }))}
+                          onChangeText={(text) =>
+                            setPasswordData((prev) => ({
+                              ...prev,
+                              confirm_password: text,
+                            }))
+                          }
                           secureTextEntry={!showPasswords.confirm}
                           editable={!isChangingPassword}
                         />
@@ -450,10 +476,10 @@ export default function EditProfileScreen({ navigation }) {
                           onPress={() => togglePasswordVisibility('confirm')}
                           className="ml-3"
                         >
-                          <Ionicons 
-                            name={showPasswords.confirm ? "eye-off" : "eye"} 
-                            size={20} 
-                            color="rgba(255,255,255,0.6)" 
+                          <Ionicons
+                            name={showPasswords.confirm ? 'eye-off' : 'eye'}
+                            size={20}
+                            color="rgba(255,255,255,0.6)"
                           />
                         </TouchableOpacity>
                       </View>
@@ -473,7 +499,9 @@ export default function EditProfileScreen({ navigation }) {
                         className="py-4 rounded-2xl"
                       >
                         <Text className="text-white text-center text-lg font-bold">
-                          {isChangingPassword ? 'Changing Password...' : 'Change Password'}
+                          {isChangingPassword
+                            ? 'Changing Password...'
+                            : 'Change Password'}
                         </Text>
                       </LinearGradient>
                     </TouchableOpacity>
@@ -482,7 +510,7 @@ export default function EditProfileScreen({ navigation }) {
               </View>
 
               {/* Account Info */}
-              <View 
+              <View
                 className="rounded-2xl p-6 mb-8"
                 style={{
                   backgroundColor: 'rgba(255, 255, 255, 0.03)',
@@ -493,30 +521,42 @@ export default function EditProfileScreen({ navigation }) {
                 <Text className="text-xl font-semibold text-white mb-4">
                   Account Information
                 </Text>
-                
+
                 <View className="space-y-3">
                   <View className="flex-row justify-between">
                     <Text className="text-gray-400">Member Since</Text>
-                    <Text className="text-white">
-                      {user?.created_at ? new Date(user.created_at).toLocaleDateString() : 'N/A'}
-                    </Text>
+                    {isLoading ? (
+                      <Skeleton width={80} height={16} borderRadius={8} />
+                    ) : (
+                      <Text className="text-white">
+                        {user?.created_at
+                          ? new Date(user.created_at).toLocaleDateString()
+                          : 'N/A'}
+                      </Text>
+                    )}
                   </View>
-                  
+
                   <View className="flex-row justify-between">
                     <Text className="text-gray-400">Account Status</Text>
-                    <View className="flex-row items-center">
-                      <Ionicons 
-                        name={user?.is_verified ? "checkmark-circle" : "alert-circle"} 
-                        size={16} 
-                        color={user?.is_verified ? "#00ff88" : "#ffaa00"} 
-                      />
-                      <Text 
-                        className="ml-2 text-sm font-medium"
-                        style={{ color: user?.is_verified ? "#00ff88" : "#ffaa00" }}
-                      >
-                        {user?.is_verified ? 'Verified' : 'Unverified'}
-                      </Text>
-                    </View>
+                    {isLoading ? (
+                      <Skeleton width={70} height={16} borderRadius={8} />
+                    ) : (
+                      <View className="flex-row items-center">
+                        <Ionicons
+                          name={user?.is_verified ? 'checkmark-circle' : 'alert-circle'}
+                          size={16}
+                          color={user?.is_verified ? '#00ff88' : '#ffaa00'}
+                        />
+                        <Text
+                          className="ml-2 text-sm font-medium"
+                          style={{
+                            color: user?.is_verified ? '#00ff88' : '#ffaa00',
+                          }}
+                        >
+                          {user?.is_verified ? 'Verified' : 'Unverified'}
+                        </Text>
+                      </View>
+                    )}
                   </View>
                 </View>
               </View>

@@ -12,6 +12,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { StatusBar } from "expo-status-bar";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import ApiService from "../services/api";
+import { Skeleton, TextSkeleton } from "../components/Skeleton";
 
 export default function ProfileScreen({ navigation }) {
   const [user, setUser] = useState(null);
@@ -230,23 +231,8 @@ export default function ProfileScreen({ navigation }) {
     },
   ];
 
-  if (isLoading) {
-    return (
-      <SafeAreaView className="flex-1">
-        <LinearGradient
-          colors={["#000000", "#1a1a1a", "#000000"]}
-          className="flex-1"
-        >
-          <View className="flex-1 justify-center items-center">
-            <Text className="text-white text-lg">Loading profile...</Text>
-          </View>
-        </LinearGradient>
-      </SafeAreaView>
-    );
-  }
-
   return (
-    <SafeAreaView className="flex-1">
+    <SafeAreaView className="flex-1" edges={['top']} style={{ backgroundColor: '#000000' }}>
       <StatusBar style="light" />
       <LinearGradient
         colors={["#000000", "#1a1a1a", "#000000"]}
@@ -299,13 +285,23 @@ export default function ProfileScreen({ navigation }) {
                 </LinearGradient>
               </View>
 
-              <Text className="text-2xl font-bold text-white mb-1">
-                {user?.full_name || "User"}
-              </Text>
+              {/* Name with skeleton */}
+              {isLoading ? (
+                <View className="items-center">
+                  <Skeleton width={180} height={28} borderRadius={14} style={{ marginBottom: 8 }} />
+                  <Skeleton width={140} height={16} borderRadius={8} />
+                </View>
+              ) : (
+                <>
+                  <Text className="text-2xl font-bold text-white mb-1">
+                    {user?.full_name || "User"}
+                  </Text>
+                  <Text className="text-gray-400 text-base">{user?.email}</Text>
+                </>
+              )}
 
-              <Text className="text-gray-400 text-base">{user?.email}</Text>
-
-              {skinProfile && (
+              {/* Skin type badge */}
+              {!isLoading && skinProfile && (
                 <View
                   className="mt-3 px-3 py-1 rounded-full"
                   style={{
@@ -318,6 +314,10 @@ export default function ProfileScreen({ navigation }) {
                     {skinProfile.skin_type.toUpperCase()} SKIN
                   </Text>
                 </View>
+              )}
+
+              {isLoading && (
+                <Skeleton width={120} height={24} borderRadius={12} style={{ marginTop: 12 }} />
               )}
             </View>
           </View>
@@ -368,9 +368,15 @@ export default function ProfileScreen({ navigation }) {
                           {item.label}
                         </Text>
                         {item.value && (
-                          <Text className="text-gray-400 text-sm mt-1">
-                            {item.value}
-                          </Text>
+                          <>
+                            {isLoading && (item.label === "Email" || item.label === "Member Since") ? (
+                              <Skeleton width={120} height={14} borderRadius={7} style={{ marginTop: 4 }} />
+                            ) : (
+                              <Text className="text-gray-400 text-sm mt-1">
+                                {item.value}
+                              </Text>
+                            )}
+                          </>
                         )}
                       </View>
 

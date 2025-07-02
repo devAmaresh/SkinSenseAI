@@ -12,6 +12,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { StatusBar } from 'expo-status-bar';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import ApiService from '../services/api';
+import { Skeleton, TextSkeleton } from '../components/Skeleton';
 
 export default function MyAnalysesScreen({ navigation }) {
   const [analyses, setAnalyses] = useState([]);
@@ -76,30 +77,8 @@ export default function MyAnalysesScreen({ navigation }) {
     navigation.navigate('AnalysisResult', { analysis });
   };
 
-  if (isLoading) {
-    return (
-      <SafeAreaView className="flex-1">
-        <LinearGradient colors={['#000000', '#1a1a1a', '#000000']} className="flex-1">
-          <View className="flex-1 justify-center items-center">
-            <View 
-              className="w-16 h-16 rounded-full mb-4 items-center justify-center"
-              style={{
-                backgroundColor: 'rgba(0, 245, 255, 0.1)',
-                borderWidth: 1,
-                borderColor: 'rgba(0, 245, 255, 0.2)',
-              }}
-            >
-              <Ionicons name="analytics-outline" size={32} color="#00f5ff" />
-            </View>
-            <Text className="text-white text-lg">Loading your analyses...</Text>
-          </View>
-        </LinearGradient>
-      </SafeAreaView>
-    );
-  }
-
   return (
-    <SafeAreaView className="flex-1">
+    <SafeAreaView className="flex-1" edges={['top']} style={{ backgroundColor: '#000000' }}>
       <StatusBar style="light" />
       <LinearGradient
         colors={['#000000', '#1a1a1a', '#000000']}
@@ -164,12 +143,21 @@ export default function MyAnalysesScreen({ navigation }) {
                   borderColor: 'rgba(0, 245, 255, 0.1)',
                 }}
               >
-                <Text className="text-cyan-400 text-2xl font-bold">
-                  {analyses.length}
-                </Text>
-                <Text className="text-gray-300 text-sm">
-                  Total Analyses
-                </Text>
+                {isLoading ? (
+                  <>
+                    <Skeleton width={40} height={28} borderRadius={14} style={{ marginBottom: 8 }} />
+                    <Skeleton width={80} height={14} borderRadius={7} />
+                  </>
+                ) : (
+                  <>
+                    <Text className="text-cyan-400 text-2xl font-bold">
+                      {analyses.length}
+                    </Text>
+                    <Text className="text-gray-300 text-sm">
+                      Total Analyses
+                    </Text>
+                  </>
+                )}
               </View>
               
               <View 
@@ -180,19 +168,85 @@ export default function MyAnalysesScreen({ navigation }) {
                   borderColor: 'rgba(0, 255, 136, 0.1)',
                 }}
               >
-                <Text className="text-green-400 text-2xl font-bold">
-                  {analyses.filter(a => a.suitability_score >= 6).length}
-                </Text>
-                <Text className="text-gray-300 text-sm">
-                  Suitable Products
-                </Text>
+                {isLoading ? (
+                  <>
+                    <Skeleton width={40} height={28} borderRadius={14} style={{ marginBottom: 8 }} />
+                    <Skeleton width={100} height={14} borderRadius={7} />
+                  </>
+                ) : (
+                  <>
+                    <Text className="text-green-400 text-2xl font-bold">
+                      {analyses.filter(a => a.suitability_score >= 6).length}
+                    </Text>
+                    <Text className="text-gray-300 text-sm">
+                      Suitable Products
+                    </Text>
+                  </>
+                )}
               </View>
             </View>
           </View>
 
           {/* Analyses List */}
           <View className="px-6">
-            {analyses.length === 0 ? (
+            {isLoading ? (
+              // Skeleton for analyses list
+              <View className="space-y-4 pb-8">
+                {Array.from({ length: 3 }).map((_, index) => (
+                  <View
+                    key={index}
+                    className="rounded-2xl p-4"
+                    style={{
+                      backgroundColor: 'rgba(255, 255, 255, 0.03)',
+                      borderWidth: 1,
+                      borderColor: 'rgba(255, 255, 255, 0.08)',
+                    }}
+                  >
+                    {/* Analysis Header */}
+                    <View className="flex-row justify-between items-start mb-3">
+                      <View className="flex-1 mr-3">
+                        <Skeleton width="80%" height={20} borderRadius={10} style={{ marginBottom: 8 }} />
+                        <Skeleton width="40%" height={14} borderRadius={7} />
+                      </View>
+                      
+                      {/* Suitability Score */}
+                      <Skeleton width={50} height={24} borderRadius={12} />
+                    </View>
+
+                    {/* Suitability Status */}
+                    <View className="flex-row items-center mb-3">
+                      <Skeleton width={16} height={16} borderRadius={8} style={{ marginRight: 8 }} />
+                      <Skeleton width="50%" height={16} borderRadius={8} />
+                    </View>
+
+                    {/* Preview of recommendation */}
+                    <Skeleton width="100%" height={16} borderRadius={8} style={{ marginBottom: 4 }} />
+                    <Skeleton width="70%" height={16} borderRadius={8} style={{ marginBottom: 12 }} />
+
+                    {/* Beneficial/Problematic ingredients preview */}
+                    <View className="flex-row space-x-4 mb-3">
+                      <View className="flex-1">
+                        <Skeleton width="80%" height={14} borderRadius={7} />
+                      </View>
+                      <View className="flex-1">
+                        <Skeleton width="70%" height={14} borderRadius={7} />
+                      </View>
+                    </View>
+
+                    {/* View details indicator */}
+                    <View className="flex-row items-center justify-between mt-3 pt-3"
+                      style={{
+                        borderTopWidth: 1,
+                        borderTopColor: 'rgba(255, 255, 255, 0.05)',
+                      }}
+                    >
+                      <Skeleton width="40%" height={16} borderRadius={8} />
+                      <Skeleton width={16} height={16} borderRadius={8} />
+                    </View>
+                  </View>
+                ))}
+              </View>
+            ) : analyses.length === 0 ? (
               <View className="items-center py-12">
                 <View 
                   className="w-20 h-20 rounded-full mb-4 items-center justify-center"
