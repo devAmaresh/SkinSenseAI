@@ -11,29 +11,23 @@ import { StatusBar } from 'expo-status-bar';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import ApiService from '../services/api';
+import { useAuth } from '../contexts/AuthContext';
 
 export default function HomeScreen({ navigation }) {
-  const [user, setUser] = useState(null);
   const [skinProfile, setSkinProfile] = useState(null);
+  const { user, logout } = useAuth();
 
   useEffect(() => {
-    loadUserData();
+    loadSkinProfile();
   }, []);
 
-  const loadUserData = async () => {
+  const loadSkinProfile = async () => {
     try {
-      const userData = await ApiService.getCurrentUser();
-      setUser(userData);
-      
-      try {
-        const skinData = await ApiService.getSkinProfile();
-        setSkinProfile(skinData);
-        console.log('Skin profile loaded:', skinData);
-      } catch (skinError) {
-        console.log('No skin profile found');
-      }
-    } catch (error) {
-      console.error('Error loading user data:', error);
+      const skinData = await ApiService.getSkinProfile();
+      setSkinProfile(skinData);
+      console.log('Skin profile loaded:', skinData);
+    } catch (skinError) {
+      console.log('No skin profile found');
     }
   };
 
@@ -51,17 +45,10 @@ export default function HomeScreen({ navigation }) {
           style: 'destructive',
           onPress: async () => {
             try {
-              await ApiService.logout();
-              navigation.reset({
-                index: 0,
-                routes: [{ name: 'Welcome' }],
-              });
+              await logout();
             } catch (error) {
               console.error('Logout error:', error);
-              navigation.reset({
-                index: 0,
-                routes: [{ name: 'Welcome' }],
-              });
+              // Logout will still complete even if there's an error
             }
           },
         },

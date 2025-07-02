@@ -13,14 +13,15 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { StatusBar } from 'expo-status-bar';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import ApiService from '../services/api';
+import { useAuth } from '../contexts/AuthContext';
 
 export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [showConnectionTest, setShowConnectionTest] = useState(__DEV__); // Show only in development
+  
+  const { login } = useAuth();
 
   const validateEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -46,12 +47,11 @@ export default function LoginScreen({ navigation }) {
         password: password,
       };
 
-      const response = await ApiService.login(credentials);
+      await login(credentials);
       
       Alert.alert(
         'Success!', 
-        'Welcome back to SkinSenseAI!',
-        [{ text: 'OK', onPress: () => navigation.navigate('Home') }]
+        'Welcome back to SkinSenseAI!'
       );
     } catch (error) {
       console.error('Login error:', error);
