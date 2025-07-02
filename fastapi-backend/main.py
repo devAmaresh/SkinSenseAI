@@ -6,7 +6,9 @@ import logging
 from app.core.database import Base, engine
 from app.core.dbconnection import init_database, check_db_health, db_manager
 from app.core.config import settings
-from app.routers import auth, skin, chat  # Add chat import
+from app.models import *  
+
+from app.routers import auth, skin, chat, skin_memory
 
 # Configure logging
 logging.basicConfig(
@@ -18,19 +20,24 @@ logger = logging.getLogger(__name__)
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Application lifespan events."""
-    # Startup
-    logger.info("Starting up FastAPI application...")
+    logger.info("Starting SkinSenseAI Backend...")
+    
     try:
+        # Initialize database
         init_database()
         logger.info("Database initialized successfully")
+        
+        # Test database connection
+        db_health = await check_db_health()
+        logger.info(f"Database health: {db_health}")
+        
+        yield
+        
     except Exception as e:
-        logger.error(f"Database initialization failed: {e}")
+        logger.error(f"Startup failed: {e}")
         raise e
-    
-    yield
-    
-    # Shutdown
-    logger.info("Shutting down FastAPI application...")
+    finally:
+        logger.info("Shutting down SkinSenseAI Backend...")
 
 # Create FastAPI app with lifespan events
 app = FastAPI(
@@ -45,6 +52,8 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:8000",
+        "http://localhost:3000",
+        "http://localhost:8080",
         "http://localhost:19006",  # Expo web
         "http://localhost:19000",  # Expo development server
         "exp://localhost:19000",   # Expo development server
@@ -58,18 +67,17 @@ app.add_middleware(
 
 # Include routers
 app.include_router(auth.router, prefix="/api/v1")
-app.include_router(skin.router, prefix="/api/v1")  # Add skin router
-app.include_router(chat.router, prefix="/api/v1")  # Include the chat router
+app.include_router(skin.router, prefix="/api/v1")  
+app.include_router(chat.router, prefix="/api/v1")  
+app.include_router(skin_memory.router, prefix="/api/v1") 
 
 @app.get("/")
 async def root():
     """Root endpoint."""
     return {
-        "message": "SkinSenseAI FastAPI Backend is running!",
+        "message": "SkinSenseAI Backend API",
         "version": "1.0.0",
-        "docs": "/docs",
-        "status": "healthy",
-        "features": ["authentication", "skin_analysis", "product_analysis"]
+        "status": "running"
     }
 
 @app.get("/health")
@@ -77,30 +85,15 @@ async def health_check():
     """Health check endpoint."""
     db_health = await check_db_health()
     return {
-        "status": "healthy" if db_health["status"] == "healthy" else "unhealthy",
+        "status": "healthy",
         "database": db_health,
-        "version": "1.0.0",
-        "timestamp": "2024-12-30T12:00:00Z"
+        "version": "1.0.0"
     }
 
 @app.get("/db-info")
 async def database_info():
     """Database information endpoint (for debugging)."""
-    if not settings.DEBUG:
-        raise HTTPException(status_code=404, detail="Not found")
-    
-    return {
-        "connection_info": db_manager.get_connection_info(),
-        "tables": db_manager.get_table_info(),
-        "health": await check_db_health()
-    }
-
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(
-        "main:app",
-        host="0.0.0.0",  # Important: Bind to all interfaces for Expo access
-        port=8000,
-        reload=settings.DEBUG,
-        log_level="info"
-    )
+    try:
+        return db_manager.get_connection_info()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Database info error: {str(e)}")

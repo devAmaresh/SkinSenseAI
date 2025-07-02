@@ -24,6 +24,7 @@ import AnalysisResultScreen from "./src/screens/AnalysisResultScreen";
 import SkinProfileScreen from "./src/screens/SkinProfileScreen";
 import ChatSessionsScreen from "./src/screens/ChatSessionsScreen";
 import ChatScreen from "./src/screens/ChatScreen";
+import SkinMemoryScreen from "./src/screens/SkinMemoryScreen";
 
 const Stack = createStackNavigator();
 
@@ -48,6 +49,7 @@ function AuthenticatedApp() {
       <Stack.Screen name="SkinProfile" component={SkinProfileScreen} />
       <Stack.Screen name="Chat" component={ChatScreen} />
       <Stack.Screen name="ChatSessions" component={ChatSessionsScreen} />
+      <Stack.Screen name="SkinMemory" component={SkinMemoryScreen} />
     </Stack.Navigator>
   );
 }

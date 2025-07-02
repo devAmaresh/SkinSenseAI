@@ -1,28 +1,37 @@
 import React, { useEffect, useRef } from 'react';
-import { View, Animated } from 'react-native';
+import { View, Animated, Easing } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 
-export const Skeleton = ({ width, height, borderRadius = 8, style }) => {
+export const Skeleton = ({ 
+  width = '100%', 
+  height = 20, 
+  borderRadius = 4, 
+  style = {} 
+}) => {
   const animatedValue = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    const animation = Animated.loop(
-      Animated.sequence([
-        Animated.timing(animatedValue, {
-          toValue: 1,
-          duration: 1000,
-          useNativeDriver: false,
-        }),
-        Animated.timing(animatedValue, {
-          toValue: 0,
-          duration: 1000,
-          useNativeDriver: false,
-        }),
-      ])
-    );
-    animation.start();
+    const startAnimation = () => {
+      Animated.loop(
+        Animated.sequence([
+          Animated.timing(animatedValue, {
+            toValue: 1,
+            duration: 1000,
+            easing: Easing.linear,
+            useNativeDriver: false,
+          }),
+          Animated.timing(animatedValue, {
+            toValue: 0,
+            duration: 1000,
+            easing: Easing.linear,
+            useNativeDriver: false,
+          }),
+        ])
+      ).start();
+    };
 
-    return () => animation.stop();
-  }, [animatedValue]);
+    startAnimation();
+  }, []);
 
   const opacity = animatedValue.interpolate({
     inputRange: [0, 1],
@@ -35,8 +44,8 @@ export const Skeleton = ({ width, height, borderRadius = 8, style }) => {
         {
           width,
           height,
-          backgroundColor: 'rgba(255, 255, 255, 0.1)',
           borderRadius,
+          backgroundColor: 'rgba(255, 255, 255, 0.1)',
           opacity,
         },
         style,

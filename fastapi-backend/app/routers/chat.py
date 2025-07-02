@@ -13,6 +13,7 @@ from app.schemas.chat import (
 )
 from app.api.deps import get_current_active_user
 from app.models.user import User
+from app.models.skin_memory import UserAllergen, SkinIssue
 from app.crud.chat import (
     create_chat_session,
     get_user_chat_sessions,
@@ -135,12 +136,35 @@ async def send_message(
         # Get conversation context
         recent_messages = get_recent_context(db, session_id, current_user.id, limit=8)
         
-        # Generate AI response using Gemini
+        # Get user's skin memory for enhanced context
+        user_allergens = db.query(UserAllergen).filter(
+            UserAllergen.user_id == current_user.id,
+            UserAllergen.is_active == True
+        ).all()
+        
+        user_issues = db.query(SkinIssue).filter(
+            SkinIssue.user_id == current_user.id
+        ).all()
+        
+        # Build enhanced context
+        allergen_context = ""
+        if user_allergens:
+            allergen_list = [f"{a.ingredient_name} ({a.severity})" for a in user_allergens]
+            allergen_context = f"Known Allergens: {', '.join(allergen_list)}"
+        
+        issue_context = ""
+        if user_issues:
+            issue_list = [f"{i.issue_type} (severity: {i.severity}/10)" for i in user_issues]
+            issue_context = f"Current Issues: {', '.join(issue_list)}"
+        
+        enhanced_skin_concerns = f"{current_user.skin_concerns or ''}\n{allergen_context}\n{issue_context}".strip()
+        
+        # Generate AI response using Gemini with enhanced context
         gemini_service = GeminiChatService()
         ai_response = gemini_service.generate_chat_response(
             user_message=message_data.message,
             skin_type=current_user.skin_type,
-            skin_concerns=current_user.skin_concerns,
+            skin_concerns=enhanced_skin_concerns,
             conversation_history=recent_messages
         )
         
@@ -153,6 +177,12 @@ async def send_message(
             user_id=current_user.id
         )
         
+        # Extract insights and update skin memory
+        gemini_service = GeminiChatService()
+        await gemini_service._extract_and_update_memory(
+            db, current_user.id, message_data.message, ai_response
+        )
+        
         return ChatMessageResponse(
             id=ai_message.id,
             message=ai_message.message,
@@ -163,6 +193,7 @@ async def send_message(
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
+        print(f"Chat error: {e}")
         raise HTTPException(status_code=500, detail="Failed to process message")
 
 @router.delete("/sessions/{session_id}")

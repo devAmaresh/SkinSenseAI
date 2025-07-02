@@ -13,6 +13,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import * as ImagePicker from 'expo-image-picker';
 import ApiService from '../services/api';
 import { SafeAreaView } from 'react-native-safe-area-context';
+
 export default function ProductAnalysisScreen({ navigation }) {
   const [selectedImage, setSelectedImage] = useState(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -69,8 +70,33 @@ export default function ProductAnalysisScreen({ navigation }) {
     setIsAnalyzing(true);
 
     try {
+      // Call the analyze product API
       const result = await ApiService.analyzeProduct(null, null, selectedImage);
-      navigation.navigate('AnalysisResult', { analysis: result });
+      console.log('Analysis Result:', result); // Debug log
+      
+      // Transform the direct API response to match the expected format
+      const transformedAnalysis = {
+        id: Date.now(), // Generate a temporary ID since this is a new analysis
+        product_name: result.product_name || 'Unknown Product',
+        suitability_score: result.suitability_score || 5,
+        recommendation: result.analysis || 'Analysis completed',
+        warnings: result.allergen_warnings?.join('. ') || null,
+        created_at: new Date().toISOString(),
+        analysis_result: {
+          beneficial_ingredients: result.beneficial_ingredients || [],
+          problematic_ingredients: result.allergen_warnings || [], // Map allergen_warnings to problematic
+          allergen_warnings: result.allergen_warnings || [],
+          skin_benefits: [], // This field might not be in the direct response
+          usage_tips: result.usage_recommendations || null,
+          key_ingredients: [], // This field might not be in the direct response
+          brand: null, // This field might not be in the direct response
+          product_type: null // This field might not be in the direct response
+        }
+      };
+      
+      // Navigate to results with the transformed analysis
+      navigation.navigate('AnalysisResult', { analysis: transformedAnalysis });
+      
     } catch (error) {
       console.error('Analysis error:', error);
       Alert.alert(
@@ -169,9 +195,6 @@ export default function ProductAnalysisScreen({ navigation }) {
                     className="flex-1 rounded-2xl py-4 overflow-hidden"
                   >
                     <View
-                      
-                      start={{ x: 0, y: 0 }}
-                      end={{ x: 1, y: 0 }}
                       className="py-4 rounded-2xl bg-zinc-900"
                     >
                       <View className="flex-row items-center justify-center">
@@ -264,7 +287,7 @@ export default function ProductAnalysisScreen({ navigation }) {
               </View>
               <Text className="text-gray-300 text-sm">
                 Our AI analyzes the ingredients image, extracts the ingredients list, 
-                and provides personalized recommendations based on your skin type.
+                and provides personalized recommendations based on your skin type and known allergens.
               </Text>
             </View>
 

@@ -30,7 +30,12 @@ class ApiService {
   // Token management methods
   async getAuthToken() {
     try {
-      return await AsyncStorage.getItem("auth_token");
+      // Try both possible token keys for backward compatibility
+      let token = await AsyncStorage.getItem("auth_token");
+      if (!token) {
+        token = await AsyncStorage.getItem("token");
+      }
+      return token;
     } catch (error) {
       console.error("Error getting auth token:", error);
       return null;
@@ -39,7 +44,9 @@ class ApiService {
 
   async setAuthToken(token) {
     try {
+      // Store with both keys for consistency
       await AsyncStorage.setItem("auth_token", token);
+      await AsyncStorage.setItem("token", token);
     } catch (error) {
       console.error("Error setting auth token:", error);
     }
@@ -48,6 +55,7 @@ class ApiService {
   async removeAuthToken() {
     try {
       await AsyncStorage.removeItem("auth_token");
+      await AsyncStorage.removeItem("token");
     } catch (error) {
       console.error("Error removing auth token:", error);
     }
@@ -68,7 +76,7 @@ class ApiService {
     }
 
     const config = {
-      timeout: 10000, // 10 second timeout
+      timeout: 300000,
       ...options,
       headers: {
         ...defaultHeaders,
@@ -305,123 +313,43 @@ class ApiService {
     }
   }
 
-  async analyzeProduct(
-    productName = null,
-    ingredients = null,
-    productImage = null
-  ) {
+  async analyzeProduct(productName, ingredients, imageFile) {
     try {
-      console.log("=== PRODUCT ANALYSIS START ===");
-      console.log("Product name:", productName);
-      console.log("Ingredients:", ingredients);
-      console.log("Has image:", !!productImage);
-
-      if (productImage) {
-        console.log("Image details:", {
-          uri: productImage.uri,
-          type: productImage.type,
-          name: productImage.fileName || productImage.name,
-          size: productImage.fileSize || productImage.size,
-        });
-
-        // For React Native, we need to use a different approach
-        const formData = new FormData();
-
-        if (productName) {
-          formData.append("product_name", productName);
-        }
-
-        if (ingredients) {
-          formData.append("ingredients", ingredients);
-        }
-
-        // Fix the image upload format for React Native
-        const imageFile = {
-          uri: productImage.uri,
-          type:
-            productImage.type === "image"
-              ? "image/jpeg"
-              : productImage.type || "image/jpeg",
-          name:
-            productImage.fileName || productImage.name || "product_image.jpg",
-        };
-
-        formData.append("product_image", imageFile);
-
-        const token = await this.getAuthToken();
-        if (!token) {
-          throw new Error("No authentication token found");
-        }
-
-        console.log(
-          "Making request to:",
-          `${this.baseURL}/skin/analyze-product`
-        );
-        console.log("Image file object:", imageFile);
-
-        const response = await fetch(`${this.baseURL}/skin/analyze-product`, {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            Accept: "application/json",
-            // Don't set Content-Type for FormData with files
-          },
-          body: formData,
-        });
-
-        console.log("Response status:", response.status);
-
-        const responseText = await response.text();
-        console.log("Raw response:", responseText);
-
-        if (!response.ok) {
-          let errorData;
-          try {
-            errorData = JSON.parse(responseText);
-          } catch (e) {
-            console.error("Error parsing error response:", e);
-            throw new Error(`HTTP ${response.status}: ${responseText}`);
-          }
-
-          throw new Error(
-            errorData.detail || `HTTP error! status: ${response.status}`
-          );
-        }
-
-        let result;
-        try {
-          result = JSON.parse(responseText);
-          console.log("Parsed result:", result);
-        } catch (e) {
-          console.error("Error parsing success response:", e);
-          throw new Error("Invalid response format from server");
-        }
-
-        console.log("=== PRODUCT ANALYSIS SUCCESS ===");
-        return result;
-      } else {
-        // Text-based analysis using the existing makeRequest method
-        return await this.makeRequest("/skin/analyze-product", {
-          method: "POST",
-          body: JSON.stringify({
-            product_name: productName,
-            ingredients: ingredients,
-          }),
+      const formData = new FormData();
+      
+      if (productName) {
+        formData.append('product_name', productName);
+      }
+      if (ingredients) {
+        formData.append('ingredients', ingredients);
+      }
+      if (imageFile) {
+        formData.append('product_image', {
+          uri: imageFile.uri,
+          type: imageFile.mimeType || 'image/jpeg',
+          name: imageFile.fileName || 'product_image.jpg',
         });
       }
+
+      const response = await fetch(`${this.baseURL}/skin/analyze-product`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${await this.getAuthToken()}`,
+          'Content-Type': 'multipart/form-data',
+        },
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || `HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log('API Response:', data); // Debug log
+      return data; // Return the direct response from /analyze-product
     } catch (error) {
-      console.error("=== PRODUCT ANALYSIS ERROR ===");
-      console.error("Error type:", error.constructor.name);
-      console.error("Error message:", error.message);
-      console.error("Full error:", error);
-
-      // Handle specific error types
-      if (error.message.includes("Network request failed")) {
-        throw new Error(
-          "Network connection failed. Please check your internet connection and ensure the backend server is running."
-        );
-      }
-
+      console.error('API Error:', error);
       throw error;
     }
   }
@@ -433,6 +361,28 @@ class ApiService {
       );
     } catch (error) {
       console.error("Get analyses error:", error);
+      throw error;
+    }
+  }
+
+  async deleteAnalysis(analysisId) {
+    try {
+      return await this.makeRequest(`/skin/analyses/${analysisId}`, {
+        method: 'DELETE',
+      });
+    } catch (error) {
+      console.error('Delete analysis error:', error);
+      throw error;
+    }
+  }
+
+  async deleteAllAnalyses() {
+    try {
+      return await this.makeRequest('/skin/analyses', {
+        method: 'DELETE',
+      });
+    } catch (error) {
+      console.error('Delete all analyses error:', error);
       throw error;
     }
   }
@@ -527,7 +477,189 @@ class ApiService {
       throw error;
     }
   }
+
+  // ============= SKIN MEMORY ENDPOINTS =============
+
+  async getSkinMemorySummary() {
+    try {
+      return await this.makeRequest('/skin-memory/summary');
+    } catch (error) {
+      console.error('Get skin memory summary error:', error);
+      throw error;
+    }
+  }
+
+  // Allergen Methods
+  async getUserAllergens() {
+    try {
+      return await this.makeRequest('/skin-memory/allergens');
+    } catch (error) {
+      console.error('Get user allergens error:', error);
+      throw error;
+    }
+  }
+
+  async addAllergen(allergenData) {
+    try {
+      return await this.makeRequest('/skin-memory/allergens', {
+        method: 'POST',
+        body: JSON.stringify(allergenData),
+      });
+    } catch (error) {
+      console.error('Add allergen error:', error);
+      throw error;
+    }
+  }
+
+  async updateAllergen(allergenId, allergenData) {
+    try {
+      return await this.makeRequest(`/skin-memory/allergens/${allergenId}`, {
+        method: 'PUT',
+        body: JSON.stringify(allergenData),
+      });
+    } catch (error) {
+      console.error('Update allergen error:', error);
+      throw error;
+    }
+  }
+
+  async removeAllergen(allergenId) {
+    try {
+      return await this.makeRequest(`/skin-memory/allergens/${allergenId}`, {
+        method: 'DELETE',
+      });
+    } catch (error) {
+      console.error('Remove allergen error:', error);
+      throw error;
+    }
+  }
+
+  // Skin Issues Methods
+  async getSkinIssues() {
+    try {
+      return await this.makeRequest('/skin-memory/issues');
+    } catch (error) {
+      console.error('Get skin issues error:', error);
+      throw error;
+    }
+  }
+
+  async addSkinIssue(issueData) {
+    try {
+      return await this.makeRequest('/skin-memory/issues', {
+        method: 'POST',
+        body: JSON.stringify(issueData),
+      });
+    } catch (error) {
+      console.error('Add skin issue error:', error);
+      throw error;
+    }
+  }
+
+  async updateSkinIssue(issueId, issueData) {
+    try {
+      return await this.makeRequest(`/skin-memory/issues/${issueId}`, {
+        method: 'PUT',
+        body: JSON.stringify(issueData),
+      });
+    } catch (error) {
+      console.error('Update skin issue error:', error);
+      throw error;
+    }
+  }
+
+  async deleteSkinIssue(issueId) {
+    try {
+      return await this.makeRequest(`/skin-memory/issues/${issueId}`, {
+        method: 'DELETE',
+      });
+    } catch (error) {
+      console.error('Delete skin issue error:', error);
+      throw error;
+    }
+  }
+
+  // Memory Methods
+  async getMemories(entryType = null, limit = 50) {
+    try {
+      let endpoint = `/skin-memory/memories?limit=${limit}`;
+      if (entryType) {
+        endpoint += `&entry_type=${entryType}`;
+      }
+      
+      return await this.makeRequest(endpoint);
+    } catch (error) {
+      console.error('Get memories error:', error);
+      throw error;
+    }
+  }
+
+  // Reporting Methods
+  async reportReaction(reactionData) {
+    try {
+      return await this.makeRequest('/skin-memory/report/reaction', {
+        method: 'POST',
+        body: JSON.stringify(reactionData),
+      });
+    } catch (error) {
+      console.error('Report reaction error:', error);
+      throw error;
+    }
+  }
+
+  async reportIssue(issueData) {
+    try {
+      return await this.makeRequest('/skin-memory/report/issue', {
+        method: 'POST',
+        body: JSON.stringify(issueData),
+      });
+    } catch (error) {
+      console.error('Report issue error:', error);
+      throw error;
+    }
+  }
+
+  async deleteMemoryEntry(memoryId) {
+    try {
+      return await this.makeRequest(`/skin-memory/memories/${memoryId}`, {
+        method: 'DELETE',
+      });
+    } catch (error) {
+      console.error('Delete memory error:', error);
+      throw error;
+    }
+  }
+
+  async deleteAllMemories(entryType = null) {
+    try {
+      const url = entryType 
+        ? `/skin-memory/memories?entry_type=${entryType}`
+        : '/skin-memory/memories';
+      return await this.makeRequest(url, {
+        method: 'DELETE',
+      });
+    } catch (error) {
+      console.error('Delete all memories error:', error);
+      throw error;
+    }
+  }
+
+  async updateIssueStatus(issueId, status) {
+    try {
+      return await this.makeRequest(`/skin-memory/issues/${issueId}/status`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ status }),
+      });
+    } catch (error) {
+      console.error('Update issue status error:', error);
+      throw error;
+    }
+  }
 }
 
+// Export single instance
 export default new ApiService();
 export { ApiService };

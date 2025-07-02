@@ -147,7 +147,7 @@ export default function EditProfileScreen({ navigation }) {
   return (
     <SafeAreaView
       className="flex-1"
-      edges={['top']}
+  
       style={{ backgroundColor: '#000000' }}
     >
       <StatusBar style="light" />

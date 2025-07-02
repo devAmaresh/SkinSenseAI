@@ -232,7 +232,7 @@ export default function ProfileScreen({ navigation }) {
   ];
 
   return (
-    <SafeAreaView className="flex-1" edges={['top']} style={{ backgroundColor: '#000000' }}>
+    <SafeAreaView className="flex-1" style={{ backgroundColor: '#000000' }}>
       <StatusBar style="light" />
       <LinearGradient
         colors={["#000000", "#1a1a1a", "#000000"]}

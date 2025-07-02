@@ -10,7 +10,11 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 
 from app.core.config import settings
 from app.core.database import Base
-from app.models.user import User  # Import all models
+
+# Import all models to ensure they're registered with SQLAlchemy
+from app.models.user import User, ProductAnalysis, SkinProfile
+from app.models.skin_memory import UserAllergen, SkinIssue, SkinMemoryEntry, AllergenReaction
+from app.models.chat import ChatSession, ChatMessage
 
 # this is the Alembic Config object
 config = context.config
