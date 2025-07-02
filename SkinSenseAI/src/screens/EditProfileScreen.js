@@ -171,7 +171,7 @@ export default function EditProfileScreen({ navigation }) {
             <View className="px-6 pt-12 pb-6">
               <View className="flex-row justify-between items-center mb-6">
                 <TouchableOpacity
-                  onPress={() => navigation.goBack()}
+                  onPress={() => navigation.navigate('Profile')}
                   className="w-12 h-12 rounded-full items-center justify-center"
                   style={{
                     backgroundColor: 'rgba(255, 255, 255, 0.05)',

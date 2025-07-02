@@ -28,6 +28,7 @@ export default function HomeScreen({ navigation }) {
       try {
         const skinData = await ApiService.getSkinProfile();
         setSkinProfile(skinData);
+        console.log('Skin profile loaded:', skinData);
       } catch (skinError) {
         console.log('No skin profile found');
       }

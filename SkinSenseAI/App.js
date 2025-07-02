@@ -16,6 +16,7 @@ import EditProfileScreen from './src/screens/EditProfileScreen';
 import ProductAnalysisScreen from './src/screens/ProductAnalysisScreen';
 import MyAnalysesScreen from './src/screens/MyAnalysesScreen';
 import AnalysisResultScreen from './src/screens/AnalysisResultScreen';
+import SkinProfileScreen from './src/screens/SkinProfileScreen';
 
 const Stack = createStackNavigator();
 
@@ -42,6 +43,7 @@ export default function App() {
         <Stack.Screen name="ProductAnalysis" component={ProductAnalysisScreen} />
         <Stack.Screen name="MyAnalyses" component={MyAnalysesScreen} />
         <Stack.Screen name="AnalysisResult" component={AnalysisResultScreen} />
+        <Stack.Screen name="SkinProfile" component={SkinProfileScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
