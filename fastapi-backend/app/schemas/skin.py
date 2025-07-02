@@ -1,6 +1,13 @@
 from pydantic import BaseModel
 from typing import Optional, Dict, Any, List
 from datetime import datetime
+class RoutineStep(BaseModel):
+    title: str
+    description: str
+    icon: str
+    color: str
+    step_order: int
+    time_of_day: str  # "morning", "evening", "both"
 
 class SkinAssessmentCreate(BaseModel):
     answers: Dict[int, str]  # Question ID to answer mapping
@@ -8,10 +15,11 @@ class SkinAssessmentCreate(BaseModel):
 
 class SkinAssessmentResponse(BaseModel):
     skin_type: str
-    assessment_answers: Dict[int, str]
-    skin_concerns: Optional[str]
+    assessment_answers: Dict[str, str]
+    skin_concerns: Optional[List[str]] = None
     recommendations: List[str]
-    
+    routine: Optional[List[RoutineStep]] = None
+
     class Config:
         from_attributes = True
 
