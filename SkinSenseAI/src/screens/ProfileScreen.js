@@ -130,10 +130,7 @@ export default function ProfileScreen({ navigation }) {
           {
             text: "OK",
             onPress: () =>
-              navigation.reset({
-                index: 0,
-                routes: [{ name: "Welcome" }],
-              }),
+              navigation.navigate("Welcome"),
           },
         ]
       );
@@ -311,7 +308,7 @@ export default function ProfileScreen({ navigation }) {
                   }}
                 >
                   <Text className="text-cyan-400 text-sm font-medium">
-                    {skinProfile.skin_type.toUpperCase()} SKIN
+                    {skinProfile?.skin_type?.toUpperCase()} SKIN
                   </Text>
                 </View>
               )}

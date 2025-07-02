@@ -263,6 +263,8 @@ class ApiService {
 
       // Remove token after successful deletion
       await this.removeAuthToken();
+      await this.logout();
+      //remove the 
 
       return { success: true };
     } catch (error) {

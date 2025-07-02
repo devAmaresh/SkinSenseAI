@@ -140,7 +140,7 @@ export default function HomeScreen({ navigation }) {
                       }}
                     >
                       <Text className="text-cyan-400 text-sm font-medium">
-                        {skinProfile.skin_type.toUpperCase()} SKIN
+                        {skinProfile?.skin_type?.toUpperCase()} SKIN
                       </Text>
                     </View>
                   )
@@ -396,7 +396,7 @@ export default function HomeScreen({ navigation }) {
                                   : "#ffff00",
                             }}
                           >
-                            {allergen.severity.toUpperCase()}
+                            {allergen?.severity?.toUpperCase()}
                           </Text>
                         </View>
                       </View>

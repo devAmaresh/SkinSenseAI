@@ -1,80 +1,72 @@
-import React from 'react';
-import { View, Text } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import Ionicons from '@expo/vector-icons/Ionicons';
+import React, { useEffect } from 'react';
+import { View, ActivityIndicator } from 'react-native';
 import { useAuth } from '../contexts/AuthContext';
+import { useNavigation } from '@react-navigation/native';
 
-export const AuthGuard = ({ children, fallback }) => {
+export function AuthGuard({ children }) {
   const { isAuthenticated, isLoading } = useAuth();
+  const navigation = useNavigation();
 
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
+      // User is not authenticated, redirect to Welcome
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'Welcome' }],
+      });
+    }
+  }, [isAuthenticated, isLoading, navigation]);
+
+  // Show loading while checking authentication
   if (isLoading) {
     return (
-      <SafeAreaView className="flex-1">
-        <LinearGradient
-          colors={['#000000', '#1a1a1a', '#000000']}
-          className="flex-1 justify-center items-center"
-        >
-          <View className="items-center">
-            <View
-              className="w-16 h-16 rounded-full items-center justify-center mb-4"
-              style={{
-                backgroundColor: 'rgba(0, 245, 255, 0.1)',
-                borderWidth: 2,
-                borderColor: 'rgba(0, 245, 255, 0.3)',
-              }}
-            >
-              <Ionicons name="hourglass" size={32} color="#00f5ff" />
-            </View>
-            <Text className="text-white text-lg font-semibold">
-              Loading...
-            </Text>
-          </View>
-        </LinearGradient>
-      </SafeAreaView>
+      <View
+        style={{
+          flex: 1,
+          justifyContent: 'center',
+          alignItems: 'center',
+          backgroundColor: '#000',
+        }}
+      >
+        <ActivityIndicator size="large" color="#00f5ff" />
+      </View>
     );
   }
 
-  if (!isAuthenticated) {
-    return fallback || null;
-  }
+  // Only render children if authenticated
+  return isAuthenticated ? children : null;
+}
 
-  return children;
-};
-
-export const GuestGuard = ({ children, fallback }) => {
+export function GuestGuard({ children }) {
   const { isAuthenticated, isLoading } = useAuth();
+  const navigation = useNavigation();
 
+  useEffect(() => {
+    if (!isLoading && isAuthenticated) {
+      // User is authenticated, redirect to Home
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'Home' }],
+      });
+    }
+  }, [isAuthenticated, isLoading, navigation]);
+
+  // Show loading while checking authentication
   if (isLoading) {
     return (
-      <SafeAreaView className="flex-1">
-        <LinearGradient
-          colors={['#000000', '#1a1a1a', '#000000']}
-          className="flex-1 justify-center items-center"
-        >
-          <View className="items-center">
-            <View
-              className="w-16 h-16 rounded-full items-center justify-center mb-4"
-              style={{
-                backgroundColor: 'rgba(0, 245, 255, 0.1)',
-                borderWidth: 2,
-                borderColor: 'rgba(0, 245, 255, 0.3)',
-              }}
-            >
-              <Ionicons name="hourglass" size={32} color="#00f5ff" />
-            </View>
-            <Text className="text-white text-lg font-semibold">
-              Loading...
-            </Text>
-          </View>
-        </LinearGradient>
-      </SafeAreaView>
+      <View
+        style={{
+          flex: 1,
+          justifyContent: 'center',
+          alignItems: 'center',
+          backgroundColor: '#000',
+        }}
+      >
+        <ActivityIndicator size="large" color="#00f5ff" />
+      </View>
     );
   }
 
-  if (isAuthenticated) {
-    return fallback || null;
-  }
-
-  return children;
-};
+  // Only render children if NOT authenticated
+  return !isAuthenticated ? children : null;
+}

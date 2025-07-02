@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import ApiService from '../services/api';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const AuthContext = createContext({});
 
@@ -15,6 +16,7 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isNewUser, setIsNewUser] = useState(false);
 
   useEffect(() => {
     checkAuthStatus();
@@ -64,10 +66,39 @@ export const AuthProvider = ({ children }) => {
     try {
       await ApiService.logout();
     } catch (error) {
-      console.error('Logout error:', error);
+      console.error('Logout API error:', error);
     } finally {
+      // Clear authentication state
       setUser(null);
       setIsAuthenticated(false);
+      setIsNewUser(false);
+      
+      // Clear stored tokens
+      await AsyncStorage.removeItem('userToken');
+      await AsyncStorage.removeItem('refreshToken');
+      
+      // Don't navigate manually - GuestGuard will handle it
+    }
+  };
+
+  const deleteAccount = async () => {
+    try {
+      await ApiService.deleteAccount();
+      
+      // Clear authentication state
+      setUser(null);
+      setIsAuthenticated(false);
+      setIsNewUser(false);
+      
+      // Clear stored tokens
+      await AsyncStorage.removeItem('userToken');
+      await AsyncStorage.removeItem('refreshToken');
+      
+      // Don't navigate manually - GuestGuard will handle it
+      
+    } catch (error) {
+      console.error('Delete account error:', error);
+      throw error;
     }
   };
 
@@ -79,6 +110,7 @@ export const AuthProvider = ({ children }) => {
     register,
     logout,
     checkAuthStatus,
+    deleteAccount,
   };
 
   return (
