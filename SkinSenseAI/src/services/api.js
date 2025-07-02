@@ -287,14 +287,13 @@ class ApiService {
   }
 
   // Skin analysis endpoints
-  async submitSkinAssessment(answers, additionalConcerns = null) {
+  async submitSkinAssessment(assessmentData) {
     try {
+      console.log('Submitting skin assessment:', assessmentData);
+      
       const response = await this.makeRequest("/skin/assessment", {
         method: "POST",
-        body: JSON.stringify({
-          answers: answers,
-          additional_concerns: additionalConcerns,
-        }),
+        body: JSON.stringify(assessmentData),
       });
 
       return response;

@@ -56,6 +56,7 @@ class SkinProfileResponse(BaseModel):
     skin_concerns: Optional[str] = None
     allergens: List[AllergenInfo] = []
     skin_issues: List[SkinIssueInfo] = []
+    updated_at: Optional[datetime] = None
     recommendations: Optional[List[RecommendationItem]] = []  # Add this field
 
     class Config:

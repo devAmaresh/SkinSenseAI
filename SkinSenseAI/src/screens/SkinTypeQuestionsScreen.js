@@ -90,10 +90,27 @@ export default function SkinTypeQuestionsScreen({ navigation }) {
     setIsSubmitting(true);
     
     try {
-      const response = await ApiService.submitSkinAssessment(finalAnswers);
+      // Convert answers object to array of strings as expected by backend
+      const answersArray = skinTypeQuestions.map(question => {
+        const selectedOptionId = finalAnswers[question.id];
+        if (selectedOptionId) {
+          const selectedOption = question.options.find(opt => opt.id === selectedOptionId);
+          return selectedOption ? selectedOption.text : '';
+        }
+        return '';
+      });
+
+      const assessmentData = {
+        answers: answersArray,
+        additional_concerns: "" 
+      };
+
+      console.log('Submitting assessment data:', assessmentData);
+      
+      const response = await ApiService.submitSkinAssessment(assessmentData);
       
       Alert.alert(
-        'Assessment Complete!',
+        'Assessment Complete! 🎉',
         `Your skin type has been identified as: ${response.skin_type.toUpperCase()}\n\nYou can now start analyzing products for your skin!`,
         [
           {
@@ -102,7 +119,10 @@ export default function SkinTypeQuestionsScreen({ navigation }) {
           },
           {
             text: 'Go to Home',
-            onPress: () => navigation.navigate('Home'),
+            onPress: () => navigation.reset({
+              index: 0,
+              routes: [{ name: 'Home' }],
+            }),
             style: 'default'
           }
         ]
@@ -119,7 +139,10 @@ export default function SkinTypeQuestionsScreen({ navigation }) {
           },
           {
             text: 'Skip for Now',
-            onPress: () => navigation.navigate('Home'),
+            onPress: () => navigation.reset({
+              index: 0,
+              routes: [{ name: 'Home' }],
+            }),
             style: 'cancel'
           }
         ]

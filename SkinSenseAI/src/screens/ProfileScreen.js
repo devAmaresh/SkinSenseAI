@@ -180,7 +180,7 @@ export default function ProfileScreen({ navigation }) {
           label: "Skin Type",
           value: skinProfile?.skin_type?.toUpperCase() || "Not assessed",
           onPress: skinProfile
-            ? null
+            ? () => navigation.navigate("SkinProfile")
             : () => navigation.navigate("SkinTypeQuestions"),
           showArrow: !skinProfile,
         },

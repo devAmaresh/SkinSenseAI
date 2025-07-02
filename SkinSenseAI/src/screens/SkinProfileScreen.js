@@ -307,7 +307,7 @@ export default function SkinProfileScreen({ navigation, route }) {
                     Identified on{" "}
                     {new Date(
                       skinProfile?.updated_at || skinProfile?.created_at
-                    ).toLocaleDateString()}
+                    ).toDateString()}
                   </Text>
                 </View>
                 <TouchableOpacity

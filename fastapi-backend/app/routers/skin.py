@@ -31,14 +31,13 @@ async def submit_skin_assessment(
         # Simple skin type determination based on answers
         skin_type = determine_skin_type(assessment.answers)
         
-        # Update user's skin profile
-        user_update = {
-            "skin_type": skin_type,
-            "skin_assessment_answers": {str(i): ans for i, ans in enumerate(assessment.answers)},
-            "skin_concerns": assessment.additional_concerns
-        }
+        # Update user's skin profile using direct database update
+        current_user.skin_type = skin_type
+        current_user.skin_assessment_answers = {str(i): ans for i, ans in enumerate(assessment.answers)}
+        current_user.skin_concerns = assessment.additional_concerns
         
-        updated_user = user_crud.update_user(db, current_user.id, user_update)
+        db.commit()
+        db.refresh(current_user)
         
         return SkinAssessmentResponse(
             skin_type=skin_type,
@@ -47,6 +46,7 @@ async def submit_skin_assessment(
         )
         
     except Exception as e:
+        db.rollback()
         raise HTTPException(status_code=500, detail=f"Assessment failed: {str(e)}")
 
 @router.get("/profile", response_model=SkinProfileResponse)
@@ -76,6 +76,7 @@ async def get_skin_profile(
     
     return SkinProfileResponse(
         skin_type=current_user.skin_type,
+        updated_at=current_user.updated_at,
         skin_concerns=current_user.skin_concerns,
         allergens=[{
             "ingredient_name": a.ingredient_name,
