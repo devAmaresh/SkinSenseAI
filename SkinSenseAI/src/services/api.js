@@ -467,6 +467,66 @@ class ApiService {
       throw error;
     }
   }
+
+  // Chat endpoints
+  async createChatSession(title = null) {
+    try {
+      return await this.makeRequest("/chat/sessions", {
+        method: "POST",
+        body: JSON.stringify({
+          title: title,
+        }),
+      });
+    } catch (error) {
+      console.error("Create chat session error:", error);
+      throw error;
+    }
+  }
+
+  async getChatSessions(skip = 0, limit = 20) {
+    try {
+      return await this.makeRequest(
+        `/chat/sessions?skip=${skip}&limit=${limit}`
+      );
+    } catch (error) {
+      console.error("Get chat sessions error:", error);
+      throw error;
+    }
+  }
+
+  async getChatSession(sessionId) {
+    try {
+      return await this.makeRequest(`/chat/sessions/${sessionId}`);
+    } catch (error) {
+      console.error("Get chat session error:", error);
+      throw error;
+    }
+  }
+
+  async sendChatMessage(sessionId, message) {
+    try {
+      return await this.makeRequest(`/chat/sessions/${sessionId}/messages`, {
+        method: "POST",
+        body: JSON.stringify({
+          message: message,
+        }),
+      });
+    } catch (error) {
+      console.error("Send chat message error:", error);
+      throw error;
+    }
+  }
+
+  async deleteChatSession(sessionId) {
+    try {
+      return await this.makeRequest(`/chat/sessions/${sessionId}`, {
+        method: "DELETE",
+      });
+    } catch (error) {
+      console.error("Delete chat session error:", error);
+      throw error;
+    }
+  }
 }
 
 export default new ApiService();

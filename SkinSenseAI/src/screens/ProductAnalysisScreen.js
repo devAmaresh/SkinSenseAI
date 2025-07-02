@@ -3,7 +3,6 @@ import {
   View,
   Text,
   TouchableOpacity,
-  SafeAreaView,
   ScrollView,
   Alert,
   Image,
@@ -13,7 +12,7 @@ import { StatusBar } from 'expo-status-bar';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import * as ImagePicker from 'expo-image-picker';
 import ApiService from '../services/api';
-
+import { SafeAreaView } from 'react-native-safe-area-context';
 export default function ProductAnalysisScreen({ navigation }) {
   const [selectedImage, setSelectedImage] = useState(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -96,7 +95,7 @@ export default function ProductAnalysisScreen({ navigation }) {
       >
         <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
           {/* Header */}
-          <View className="px-6 pt-12 pb-6">
+          <View className="px-6 pt-1 pb-6">
             <TouchableOpacity
               onPress={() => navigation.goBack()}
               className="w-12 h-12 rounded-full items-center justify-center mb-6"

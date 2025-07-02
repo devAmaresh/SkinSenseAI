@@ -3,12 +3,12 @@ import {
   View,
   Text,
   TouchableOpacity,
-  SafeAreaView,
   ScrollView,
   Alert,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { StatusBar } from 'expo-status-bar';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import ApiService from '../services/api';
 
@@ -77,21 +77,21 @@ export default function HomeScreen({ navigation }) {
       onPress: () => navigation.navigate('ProductAnalysis')
     },
     { 
+      icon: 'chatbubbles-outline', 
+      label: 'AI Chat', 
+      color: '#00ff88',
+      onPress: () => navigation.navigate('ChatSessions')
+    },
+    { 
       icon: 'analytics-outline', 
       label: 'My Analyses', 
       color: '#0080ff',
       onPress: () => navigation.navigate('MyAnalyses')
-    },
-    { 
-      icon: 'person-outline', 
-      label: 'Profile', 
-      color: '#8000ff',
-      onPress: () => navigation.navigate('Profile')
-    },
+    }
   ];
 
   return (
-    <SafeAreaView className="flex-1">
+    <SafeAreaView className="flex-1" >
       <StatusBar style="light" />
       <LinearGradient
         colors={['#000000', '#1a1a1a', '#000000']}
@@ -99,7 +99,7 @@ export default function HomeScreen({ navigation }) {
       >
         <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
           {/* Header */}
-          <View className="px-6 pt-12 pb-8">
+          <View className="px-6 pt-1 pb-8">
             <View className="flex-row justify-between items-center">
               <View className="flex-1">
                 <Text className="text-gray-400 text-lg">Welcome back!</Text>
@@ -175,7 +175,7 @@ export default function HomeScreen({ navigation }) {
                   >
                     <Ionicons name={action.icon} size={24} color={action.color} />
                   </View>
-                  <Text className="text-gray-300 text-sm font-medium">{action.label}</Text>
+                  <Text className="text-gray-300 text-sm font-medium text-center">{action.label}</Text>
                 </TouchableOpacity>
               ))}
             </View>

@@ -6,7 +6,7 @@ import logging
 from app.core.database import Base, engine
 from app.core.dbconnection import init_database, check_db_health, db_manager
 from app.core.config import settings
-from app.routers import auth, skin  # Add skin router
+from app.routers import auth, skin, chat  # Add chat import
 
 # Configure logging
 logging.basicConfig(
@@ -59,6 +59,7 @@ app.add_middleware(
 # Include routers
 app.include_router(auth.router, prefix="/api/v1")
 app.include_router(skin.router, prefix="/api/v1")  # Add skin router
+app.include_router(chat.router, prefix="/api/v1")  # Include the chat router
 
 @app.get("/")
 async def root():

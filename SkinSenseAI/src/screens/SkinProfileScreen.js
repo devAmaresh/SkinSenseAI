@@ -3,11 +3,11 @@ import {
   View,
   Text,
   TouchableOpacity,
-  SafeAreaView,
   ScrollView,
   Alert,
   RefreshControl,
 } from "react-native";
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from "expo-linear-gradient";
 import { StatusBar } from "expo-status-bar";
 import Ionicons from "@expo/vector-icons/Ionicons";
@@ -247,7 +247,7 @@ export default function SkinProfileScreen({ navigation, route }) {
           }
         >
           {/* Header */}
-          <View className="px-6 pt-12 pb-6">
+          <View className="px-6 pt-1 pb-6">
             <TouchableOpacity
               onPress={() => navigation.navigate("Home")}
               className="w-12 h-12 rounded-full items-center justify-center mb-6"

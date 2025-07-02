@@ -21,7 +21,7 @@ class GeminiAnalyzer:
             raise ValueError("GEMINI_API_KEY environment variable is required")
         
         genai.configure(api_key=api_key)
-        self.model = genai.GenerativeModel("gemini-1.5-flash")
+        self.model = genai.GenerativeModel("gemini-2.5-flash")
 
     def analyze_product_image(self, image_data: bytes, skin_type: str) -> Dict[str, Any]:
         """Analyze product ingredients from image using Gemini Vision."""

@@ -3,11 +3,11 @@ import {
   View,
   Text,
   TouchableOpacity,
-  SafeAreaView,
   ScrollView,
   Alert,
   Switch,
 } from "react-native";
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from "expo-linear-gradient";
 import { StatusBar } from "expo-status-bar";
 import Ionicons from "@expo/vector-icons/Ionicons";
@@ -254,7 +254,7 @@ export default function ProfileScreen({ navigation }) {
       >
         <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
           {/* Header */}
-          <View className="px-6 pt-12 pb-6">
+          <View className="px-6 pt-1 pb-6">
             <View className="flex-row justify-between items-center mb-6">
               <TouchableOpacity
                 onPress={() => navigation.navigate("Home")}
