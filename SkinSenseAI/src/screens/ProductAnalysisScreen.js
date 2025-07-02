@@ -166,16 +166,18 @@ export default function ProductAnalysisScreen({ navigation }) {
 
                   <TouchableOpacity
                     onPress={pickImage}
-                    className="flex-1 rounded-2xl py-4"
-                    style={{
-                      backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                      borderWidth: 1,
-                      borderColor: 'rgba(255, 255, 255, 0.1)',
-                    }}
+                    className="flex-1 rounded-2xl py-4 overflow-hidden"
                   >
-                    <View className="flex-row items-center justify-center">
-                      <Ionicons name="images" size={20} color="white" />
-                      <Text className="text-white font-semibold ml-2">Gallery</Text>
+                    <View
+                      
+                      start={{ x: 0, y: 0 }}
+                      end={{ x: 1, y: 0 }}
+                      className="py-4 rounded-2xl bg-zinc-900"
+                    >
+                      <View className="flex-row items-center justify-center">
+                        <Ionicons name="image" size={20} color="#fff" />
+                        <Text className="text-zinc-100 font-bold ml-2">Gallery</Text>
+                      </View>
                     </View>
                   </TouchableOpacity>
                 </View>
