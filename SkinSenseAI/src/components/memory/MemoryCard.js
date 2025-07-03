@@ -105,11 +105,31 @@ const MemoryCard = ({ memory, onDelete }) => {
 
     if (Array.isArray(value)) {
       if (value.length === 0) return "None";
-      return value.join(", ");
+      return value
+        .map((item) => {
+          if (typeof item === "object" && item !== null) {
+            // Handle object items in arrays
+            if (item.name) return item.name;
+            return JSON.stringify(item);
+          }
+          return String(item);
+        })
+        .join(", ");
     }
 
-    if (typeof value === "object") {
-      return "[Complex Data]";
+    if (typeof value === "object" && value !== null) {
+      // Handle objects
+      if (value.name) return value.name;
+      if (Object.keys(value).length === 0) return "{}";
+
+      try {
+        // Try to convert to readable string
+        return JSON.stringify(value)
+          .replace(/[{}"]/g, "")
+          .replace(/,/g, ", ");
+      } catch (e) {
+        return "[Complex Data]";
+      }
     }
 
     return String(value);
@@ -124,7 +144,7 @@ const MemoryCard = ({ memory, onDelete }) => {
       setIsDeleting(true);
       await ApiService.deleteMemoryEntry(memory.id);
       setShowDeleteAlert(false);
-      
+
       // Immediately call the onDelete callback to update the parent component's state
       if (onDelete) {
         onDelete(memory.id);
@@ -264,12 +284,20 @@ const MemoryCard = ({ memory, onDelete }) => {
                   </View>
                   {analysisResult.watch_ingredients.map((ingredient, index) => (
                     <View key={index} className="flex-row items-start">
-                      <Ionicons name="warning" size={16} color="#ffaa00" style={{ marginTop: 2 }} />
+                      <Ionicons
+                        name="warning"
+                        size={16}
+                        color="#ffaa00"
+                        style={{ marginTop: 2 }}
+                      />
                       <View className="ml-2 flex-1">
                         <Text className="text-yellow-300 text-sm mb-1 leading-5">
-                          • {typeof ingredient === 'string' ? ingredient : ingredient.name}
+                          •{" "}
+                          {typeof ingredient === "string"
+                            ? ingredient
+                            : ingredient.name}
                         </Text>
-                        {typeof ingredient !== 'string' && ingredient.reason && (
+                        {typeof ingredient !== "string" && ingredient.reason && (
                           <Text className="text-gray-400 text-xs mb-2 ml-2">
                             {ingredient.reason}
                           </Text>
@@ -301,11 +329,15 @@ const MemoryCard = ({ memory, onDelete }) => {
                           }}
                         >
                           <Text className="text-cyan-400 text-xs">
-                            {typeof ingredient === 'string'
-                              ? (ingredient.length > 20 ? ingredient.substring(0, 20) + "..." : ingredient)
-                              : (ingredient && ingredient.name 
-                                  ? (ingredient.name.length > 20 ? ingredient.name.substring(0, 20) + "..." : ingredient.name)
-                                  : "Unknown")}
+                            {typeof ingredient === "string"
+                              ? ingredient.length > 20
+                                ? ingredient.substring(0, 20) + "..."
+                                : ingredient
+                              : ingredient && ingredient.name
+                              ? ingredient.name.length > 20
+                                ? ingredient.name.substring(0, 20) + "..."
+                                : ingredient.name
+                              : "Unknown"}
                           </Text>
                         </View>
                       ))}
@@ -332,33 +364,33 @@ const MemoryCard = ({ memory, onDelete }) => {
 
             {/* Potential Issues */}
             {analysisResult.potential_issues && (
-                <View className="mb-3">
-                  <View className="flex-row items-center mb-2">
-                    <Ionicons
-                      name="alert-circle-outline"
-                      size={16}
-                      color="#ff4444"
-                    />
-                    <Text className="text-red-400 text-sm font-medium ml-2">
-                      Potential Issues:
-                    </Text>
-                  </View>
-                  {typeof analysisResult.potential_issues === 'string' ? (
-                    <Text className="text-red-300 text-sm mb-1 leading-5">
-                      • {analysisResult.potential_issues}
-                    </Text>
-                  ) : Array.isArray(analysisResult.potential_issues) ? (
-                    analysisResult.potential_issues.map((issue, index) => (
-                      <Text
-                        key={index}
-                        className="text-red-300 text-sm mb-1 leading-5"
-                      >
-                        • {issue}
-                      </Text>
-                    ))
-                  ) : null}
+              <View className="mb-3">
+                <View className="flex-row items-center mb-2">
+                  <Ionicons
+                    name="alert-circle-outline"
+                    size={16}
+                    color="#ff4444"
+                  />
+                  <Text className="text-red-400 text-sm font-medium ml-2">
+                    Potential Issues:
+                  </Text>
                 </View>
-              )}
+                {typeof analysisResult.potential_issues === "string" ? (
+                  <Text className="text-red-300 text-sm mb-1 leading-5">
+                    • {analysisResult.potential_issues}
+                  </Text>
+                ) : Array.isArray(analysisResult.potential_issues) ? (
+                  analysisResult.potential_issues.map((issue, index) => (
+                    <Text
+                      key={index}
+                      className="text-red-300 text-sm mb-1 leading-5"
+                    >
+                      • {issue}
+                    </Text>
+                  ))
+                ) : null}
+              </View>
+            )}
           </View>
         </View>
       </View>
