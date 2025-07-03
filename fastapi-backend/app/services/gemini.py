@@ -109,9 +109,49 @@ class GeminiAnalyzer:
             7. Potential new sensitivities to watch for
             8. Usage recommendations
             
-            Format response as JSON with keys: product_name, brand, product_type, key_ingredients, 
-            suitability_score, allergen_warnings, personalized_recommendation, beneficial_ingredients, 
-            watch_ingredients, usage_instructions, potential_issues.
+            IMPORTANT: Format your response using the EXACT structure below. All lists must be arrays, even if there is only one item:
+            
+            ```json
+            {{
+                "product_name": "Example Product Name",
+                "brand": "Example Brand",
+                "product_type": "Cleanser",
+                "key_ingredients": [
+                    {{
+                        "name": "Ingredient 1",
+                        "description": "Description of ingredient 1"
+                    }},
+                    {{
+                        "name": "Ingredient 2", 
+                        "description": "Description of ingredient 2"
+                    }}
+                ],
+                "suitability_score": 7,
+                "allergen_warnings": [
+                    "Warning 1 about allergen X",
+                    "Warning 2 about allergen Y"
+                ],
+                "personalized_recommendation": "Detailed recommendation based on user's skin profile",
+                "beneficial_ingredients": [
+                    "Ingredient A",
+                    "Ingredient B"
+                ],
+                "watch_ingredients": [
+                    {{
+                        "name": "Problematic Ingredient 1",
+                        "reason": "Reason why this might be problematic"
+                    }},
+                    {{
+                        "name": "Problematic Ingredient 2",
+                        "reason": "Reason why this might be problematic"
+                    }}
+                ],
+                "usage_instructions": "Instructions on how to use the product",
+                "potential_issues": "Any other issues to be aware of"
+            }}
+            ```
+
+            Always provide arrays for key_ingredients, allergen_warnings, beneficial_ingredients, and watch_ingredients, even if there is only one item or no items (use empty array in that case).
             """
 
             response = self.model.generate_content([prompt, image])
@@ -121,11 +161,20 @@ class GeminiAnalyzer:
                 analysis = json.loads(
                     response.text.strip().replace("```json", "").replace("```", "")
                 )
+                
+                # Ensure all expected fields are arrays, even if empty
+                for field in ['key_ingredients', 'allergen_warnings', 'beneficial_ingredients', 'watch_ingredients']:
+                    if field not in analysis:
+                        analysis[field] = []
+                    elif not isinstance(analysis[field], list):
+                        analysis[field] = [analysis[field]]
+                        
+                return analysis
+                
             except json.JSONDecodeError:
                 # Fallback parsing
                 analysis = self._parse_fallback_response(response.text)
-
-            return analysis
+                return analysis
 
         except Exception as e:
             print(f"Analysis error: {e}")
