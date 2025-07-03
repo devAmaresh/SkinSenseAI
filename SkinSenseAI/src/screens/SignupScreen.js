@@ -103,7 +103,7 @@ export default function SignupScreen({ navigation }) {
             {/* Back Button */}
             <TouchableOpacity
               onPress={() => navigation.goBack()}
-              className="absolute top-12 left-6 z-10 w-12 h-12 rounded-full items-center justify-center"
+              className="absolute top-4 left-6 z-10 w-12 h-12 rounded-full items-center justify-center"
               style={{
                 backgroundColor: 'rgba(255, 255, 255, 0.05)',
                 borderWidth: 1,
@@ -113,7 +113,7 @@ export default function SignupScreen({ navigation }) {
               <Ionicons name="arrow-back" size={24} color="white" />
             </TouchableOpacity>
 
-            <View className="flex-1 justify-center px-8 pt-20">
+            <View className="flex-1 justify-center px-8 pt-11">
               {/* Header */}
               <View className="items-center mb-8">
                 <View 

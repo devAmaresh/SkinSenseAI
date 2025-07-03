@@ -7,7 +7,7 @@ import {
   Alert,
   Switch,
 } from "react-native";
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import { StatusBar } from "expo-status-bar";
 import Ionicons from "@expo/vector-icons/Ionicons";
@@ -16,7 +16,7 @@ import { Skeleton, TextSkeleton } from "../components/Skeleton";
 import { useAuth } from "../contexts/AuthContext";
 
 export default function ProfileScreen({ navigation }) {
-  const { logout } = useAuth();
+  const { logout, deleteAccount } = useAuth();
   const [user, setUser] = useState(null);
   const [skinProfile, setSkinProfile] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -65,24 +65,10 @@ export default function ProfileScreen({ navigation }) {
 
   const performLogout = async () => {
     try {
-      logout();
-      Alert.alert("Logged Out", "You have been successfully logged out.", [
-        {
-          text: "OK",
-          onPress: () =>
-            navigation.reset({
-              index: 0,
-              routes: [{ name: "Welcome" }],
-            }),
-        },
-      ]);
+      await logout();
     } catch (error) {
       console.error("Logout error:", error);
-      // Even if logout fails, navigate to welcome screen
-      navigation.reset({
-        index: 0,
-        routes: [{ name: "Welcome" }],
-      });
+      Alert.alert("Logout Error", "Something went wrong. Please try again.");
     }
   };
 
@@ -124,17 +110,10 @@ export default function ProfileScreen({ navigation }) {
 
   const performDeleteAccount = async () => {
     try {
-      await ApiService.deleteAccount();
+      await deleteAccount();
       Alert.alert(
         "Account Deleted",
-        "Your account has been successfully deleted.",
-        [
-          {
-            text: "OK",
-            onPress: () =>
-              navigation.navigate("Welcome"),
-          },
-        ]
+        "Your account has been successfully deleted."
       );
     } catch (error) {
       console.error("Delete account error:", error);
@@ -231,7 +210,7 @@ export default function ProfileScreen({ navigation }) {
   ];
 
   return (
-    <SafeAreaView className="flex-1" style={{ backgroundColor: '#000000' }}>
+    <SafeAreaView className="flex-1" style={{ backgroundColor: "#000000" }}>
       <StatusBar style="light" />
       <LinearGradient
         colors={["#000000", "#1a1a1a", "#000000"]}
@@ -287,7 +266,12 @@ export default function ProfileScreen({ navigation }) {
               {/* Name with skeleton */}
               {isLoading ? (
                 <View className="items-center">
-                  <Skeleton width={180} height={28} borderRadius={14} style={{ marginBottom: 8 }} />
+                  <Skeleton
+                    width={180}
+                    height={28}
+                    borderRadius={14}
+                    style={{ marginBottom: 8 }}
+                  />
                   <Skeleton width={140} height={16} borderRadius={8} />
                 </View>
               ) : (
@@ -316,7 +300,12 @@ export default function ProfileScreen({ navigation }) {
               )}
 
               {isLoading && (
-                <Skeleton width={120} height={24} borderRadius={12} style={{ marginTop: 12 }} />
+                <Skeleton
+                  width={120}
+                  height={24}
+                  borderRadius={12}
+                  style={{ marginTop: 12 }}
+                />
               )}
             </View>
           </View>
@@ -368,8 +357,15 @@ export default function ProfileScreen({ navigation }) {
                         </Text>
                         {item.value && (
                           <>
-                            {isLoading && (item.label === "Email" || item.label === "Member Since") ? (
-                              <Skeleton width={120} height={14} borderRadius={7} style={{ marginTop: 4 }} />
+                            {isLoading &&
+                            (item.label === "Email" ||
+                              item.label === "Member Since") ? (
+                              <Skeleton
+                                width={120}
+                                height={14}
+                                borderRadius={7}
+                                style={{ marginTop: 4 }}
+                              />
                             ) : (
                               <Text className="text-gray-400 text-sm mt-1">
                                 {item.value}
