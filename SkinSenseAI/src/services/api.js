@@ -16,7 +16,7 @@ const getApiBaseUrl = () => {
     }
   } else {
     // Production URL
-    return "https://your-production-backend.com/api/v1";
+    return "https://skinsense-fvcje3gkbagqh8h5.centralindia-01.azurewebsites.net/api/v1";
   }
 };
 
