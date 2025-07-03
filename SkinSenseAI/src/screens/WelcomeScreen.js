@@ -54,7 +54,7 @@ export default function WelcomeScreen({ navigation }) {
             </Text>
 
             {/* Features */}
-            <View className="space-y-4 w-full max-w-sm">
+            <View className="space-y-4 w-full max-w-sm gap-2">
               {[
                 { icon: 'scan', text: 'Smart skin analysis' },
                 { icon: 'sparkles', text: 'AI-powered recommendations' },
@@ -109,9 +109,9 @@ export default function WelcomeScreen({ navigation }) {
               onPress={() => navigation.navigate('Login')}
               className="rounded-2xl py-4"
               style={{
-                backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                backgroundColor: 'rgba(255, 255, 255, 0.1)',
                 borderWidth: 1,
-                borderColor: 'rgba(255, 255, 255, 0.1)',
+                borderColor: 'rgba(255, 255, 255, 0.25)',
               }}
             >
               <Text className="text-white text-center text-lg font-semibold">

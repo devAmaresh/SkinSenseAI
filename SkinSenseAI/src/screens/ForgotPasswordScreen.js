@@ -4,14 +4,13 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  KeyboardAvoidingView,
-  Platform,
   Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { StatusBar } from 'expo-status-bar';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
 export default function ForgotPasswordScreen({ navigation }) {
   const [email, setEmail] = useState('');
@@ -41,10 +40,11 @@ export default function ForgotPasswordScreen({ navigation }) {
         colors={['#000000', '#1a1a1a', '#000000']}
         className="flex-1"
       >
-        <KeyboardAvoidingView
-          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-          className="flex-1"
-        >
+        <KeyboardAwareScrollView
+          contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', padding: 6 }}
+          enableOnAndroid={true}
+          extraScrollHeight={20} // adjust as needed
+          >
           {/* Back Button */}
           <TouchableOpacity
             onPress={() => navigation.goBack()}
@@ -58,7 +58,7 @@ export default function ForgotPasswordScreen({ navigation }) {
             <Ionicons name="arrow-back" size={24} color="white" />
           </TouchableOpacity>
 
-          <View className="flex-1 justify-center px-8">
+          <View className="flex-1 justify-center px-8 mt-10">
             {/* Header */}
             <View className="items-center mb-10">
               <View 
@@ -92,7 +92,7 @@ export default function ForgotPasswordScreen({ navigation }) {
                   Email Address
                 </Text>
                 <View 
-                  className="rounded-2xl px-4 py-4"
+                  className="rounded-2xl px-4 py-2"
                   style={{
                     backgroundColor: 'rgba(255, 255, 255, 0.03)',
                     borderWidth: 1,
@@ -166,7 +166,7 @@ export default function ForgotPasswordScreen({ navigation }) {
               </View>
             </View>
           </View>
-        </KeyboardAvoidingView>
+        </KeyboardAwareScrollView>
       </LinearGradient>
     </SafeAreaView>
   );

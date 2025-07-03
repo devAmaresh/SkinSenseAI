@@ -4,9 +4,6 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  ScrollView,
-  KeyboardAvoidingView,
-  Platform,
   Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -14,6 +11,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { StatusBar } from 'expo-status-bar';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useAuth } from '../contexts/AuthContext';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
 export default function SignupScreen({ navigation }) {
   const { register } = useAuth();
@@ -92,14 +90,11 @@ export default function SignupScreen({ navigation }) {
         colors={['#000000', '#1a1a1a', '#000000']}
         className="flex-1"
       >
-        <KeyboardAvoidingView
-          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-          className="flex-1"
+        <KeyboardAwareScrollView
+          contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', padding: 6 }}
+          enableOnAndroid={true}
+          extraScrollHeight={20} // adjust as needed
         >
-          <ScrollView
-            contentContainerStyle={{ flexGrow: 1 }}
-            showsVerticalScrollIndicator={false}
-          >
             {/* Back Button */}
             <TouchableOpacity
               onPress={() => navigation.goBack()}
@@ -140,14 +135,14 @@ export default function SignupScreen({ navigation }) {
               </View>
 
               {/* Signup Form */}
-              <View className="space-y-5">
+              <View className="space-y-5 gap-2">
                 {/* Full Name Input */}
                 <View className="space-y-2">
                   <Text className="text-gray-300 text-sm font-medium ml-1">
                     Full Name
                   </Text>
                   <View 
-                    className="rounded-2xl px-4 py-4"
+                    className="rounded-2xl px-4 py-1"
                     style={{
                       backgroundColor: 'rgba(255, 255, 255, 0.03)',
                       borderWidth: 1,
@@ -173,7 +168,7 @@ export default function SignupScreen({ navigation }) {
                     Email Address
                   </Text>
                   <View 
-                    className="rounded-2xl px-4 py-4"
+                    className="rounded-2xl px-4 py-1"
                     style={{
                       backgroundColor: 'rgba(255, 255, 255, 0.03)',
                       borderWidth: 1,
@@ -200,7 +195,7 @@ export default function SignupScreen({ navigation }) {
                     Password
                   </Text>
                   <View 
-                    className="rounded-2xl px-4 py-4 flex-row items-center"
+                    className="rounded-2xl px-4 py-1 flex-row items-center"
                     style={{
                       backgroundColor: 'rgba(255, 255, 255, 0.03)',
                       borderWidth: 1,
@@ -238,7 +233,7 @@ export default function SignupScreen({ navigation }) {
                     Confirm Password
                   </Text>
                   <View 
-                    className="rounded-2xl px-4 py-4 flex-row items-center"
+                    className="rounded-2xl px-4 py-1 flex-row items-center"
                     style={{
                       backgroundColor: 'rgba(255, 255, 255, 0.03)',
                       borderWidth: 1,
@@ -273,7 +268,7 @@ export default function SignupScreen({ navigation }) {
                 {/* Terms and Conditions */}
                 <TouchableOpacity
                   onPress={() => setAgreeToTerms(!agreeToTerms)}
-                  className="flex-row items-center mt-4"
+                  className="flex-row items-center mt-2"
                   disabled={isLoading}
                 >
                   <View 
@@ -304,7 +299,7 @@ export default function SignupScreen({ navigation }) {
                 <TouchableOpacity
                   onPress={handleSignup}
                   disabled={isLoading}
-                  className="rounded-2xl py-4 mt-6 overflow-hidden"
+                  className="rounded-2xl py-4 mt-2 overflow-hidden"
                   style={{ opacity: isLoading ? 0.7 : 1 }}
                 >
                   <LinearGradient
@@ -320,14 +315,14 @@ export default function SignupScreen({ navigation }) {
                 </TouchableOpacity>
 
                 {/* Divider */}
-                <View className="flex-row items-center my-6">
+                <View className="flex-row items-center my-2">
                   <View className="flex-1 h-px bg-gray-700" />
                   <Text className="mx-4 text-gray-400 text-sm">or sign up with</Text>
                   <View className="flex-1 h-px bg-gray-700" />
                 </View>
 
                 {/* Social Signup Buttons */}
-                <View className="flex-row space-x-4">
+                <View className="flex-row space-x-4 gap-6">
                   {['logo-google', 'logo-apple', 'logo-facebook'].map((icon, index) => (
                     <TouchableOpacity 
                       key={index}
@@ -336,7 +331,7 @@ export default function SignupScreen({ navigation }) {
                       style={{
                         backgroundColor: 'rgba(255, 255, 255, 0.03)',
                         borderWidth: 1,
-                        borderColor: 'rgba(255, 255, 255, 0.08)',
+                        borderColor: 'rgba(255, 255, 255, 0.25)',
                       }}
                     >
                       <Ionicons name={icon} size={24} color="white" />
@@ -361,8 +356,7 @@ export default function SignupScreen({ navigation }) {
                 </View>
               </View>
             </View>
-          </ScrollView>
-        </KeyboardAvoidingView>
+          </KeyboardAwareScrollView>
       </LinearGradient>
     </SafeAreaView>
   );
