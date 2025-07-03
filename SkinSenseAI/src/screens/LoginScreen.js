@@ -47,10 +47,10 @@ export default function LoginScreen({ navigation }) {
 
       await login(credentials);
       
-      Alert.alert(
-        'Success!', 
-        'Welcome back to SkinSenseAI!'
-      );
+      // Alert.alert(
+      //   'Success!', 
+      //   'Welcome back to SkinSenseAI!'
+      // );
     } catch (error) {
       console.error('Login error:', error);
       

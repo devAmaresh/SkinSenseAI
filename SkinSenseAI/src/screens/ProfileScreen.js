@@ -14,6 +14,7 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import ApiService from "../services/api";
 import { Skeleton, TextSkeleton } from "../components/Skeleton";
 import { useAuth } from "../contexts/AuthContext";
+import { ActivityIndicator } from "react-native-paper";
 
 export default function ProfileScreen({ navigation }) {
   const { logout, deleteAccount } = useAuth();
@@ -21,6 +22,7 @@ export default function ProfileScreen({ navigation }) {
   const [skinProfile, setSkinProfile] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     loadUserData();
@@ -109,6 +111,7 @@ export default function ProfileScreen({ navigation }) {
   };
 
   const performDeleteAccount = async () => {
+    setIsDeleting(true);
     try {
       await deleteAccount();
       Alert.alert(
@@ -121,6 +124,8 @@ export default function ProfileScreen({ navigation }) {
         "Error",
         "Failed to delete account. Please try again or contact support."
       );
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -398,11 +403,13 @@ export default function ProfileScreen({ navigation }) {
 
               <TouchableOpacity
                 onPress={handleDeleteAccount}
+                disabled={isDeleting}
                 className="p-4 rounded-2xl flex-row items-center"
                 style={{
                   backgroundColor: "rgba(255, 0, 0, 0.05)",
                   borderWidth: 1,
                   borderColor: "rgba(255, 0, 0, 0.1)",
+                  opacity: isDeleting ? 0.7 : 1, // visual disabled state
                 }}
               >
                 <View
@@ -425,14 +432,36 @@ export default function ProfileScreen({ navigation }) {
                   </Text>
                 </View>
 
-                <Ionicons
-                  name="chevron-forward"
-                  size={20}
-                  color="rgba(255,68,68,0.6)"
-                />
+                  {isDeleting ? (
+                    <ActivityIndicator size="small" color="#ff4444" />
+                  ) : (
+                    <Ionicons
+                      name="chevron-forward"
+                      size={20}
+                      color="rgba(255,68,68,0.6)"
+                    />
+                  )}
               </TouchableOpacity>
             </View>
           </View>
+          {/* Full-screen loader overlay */}
+          {isDeleting && (
+            <View
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                backgroundColor: 'rgba(0,0,0,0.5)',
+                justifyContent: 'center',
+                alignItems: 'center',
+                zIndex: 999,
+              }}
+            >
+              <ActivityIndicator size="large" color="#00f5ff" />
+            </View>
+          )}
         </ScrollView>
       </LinearGradient>
     </SafeAreaView>

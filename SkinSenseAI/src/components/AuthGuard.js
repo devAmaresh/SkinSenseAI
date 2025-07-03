@@ -38,16 +38,28 @@ export function AuthGuard({ children }) {
 }
 
 export function GuestGuard({ children }) {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, isNewUser } = useAuth();
   const navigation = useNavigation();
 
   useEffect(() => {
     if (!isLoading && isAuthenticated) {
-      // User is authenticated, redirect to Home
-      navigation.reset({
-        index: 0,
-        routes: [{ name: 'Home' }],
+      if(isNewUser) {
+        // New user, redirect to Skin Assessment
+        navigation.reset({
+        index: 1,
+        routes: [
+          { name: 'Home' },
+          { name: 'SkinTypeQuestions' },
+        ],
       });
+      }
+      else{
+        // User is authenticated, redirect to Home
+        navigation.reset({
+          index: 0,
+          routes: [{ name: 'Home' }],
+        });
+      }
     }
   }, [isAuthenticated, isLoading, navigation]);
 

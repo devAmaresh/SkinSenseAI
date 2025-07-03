@@ -66,12 +66,11 @@ export default function SignupScreen({ navigation }) {
       };
 
       const response = await register(userData);
-      
-      Alert.alert(
-        'Success!', 
-        'Account created successfully!',
-        [{ text: 'OK', onPress: () => navigation.navigate('SkinTypeQuestions') }]
-      );
+      // Alert.alert(
+      //   'Success!', 
+      //   'Account created successfully!',
+      //   [{ text: 'OK', onPress: () => navigation.navigate('SkinTypeQuestions') }]
+      // );
     } catch (error) {
       console.error('Signup error:', error);
       Alert.alert(
