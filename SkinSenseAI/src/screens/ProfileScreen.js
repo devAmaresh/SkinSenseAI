@@ -13,8 +13,10 @@ import { StatusBar } from "expo-status-bar";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import ApiService from "../services/api";
 import { Skeleton, TextSkeleton } from "../components/Skeleton";
+import { useAuth } from "../contexts/AuthContext";
 
 export default function ProfileScreen({ navigation }) {
+  const { logout } = useAuth();
   const [user, setUser] = useState(null);
   const [skinProfile, setSkinProfile] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -63,7 +65,7 @@ export default function ProfileScreen({ navigation }) {
 
   const performLogout = async () => {
     try {
-      await ApiService.logout();
+      logout();
       Alert.alert("Logged Out", "You have been successfully logged out.", [
         {
           text: "OK",

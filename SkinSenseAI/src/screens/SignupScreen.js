@@ -13,9 +13,10 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { StatusBar } from 'expo-status-bar';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import ApiService from '../services/api';
+import { useAuth } from '../contexts/AuthContext';
 
 export default function SignupScreen({ navigation }) {
+  const { register } = useAuth();
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -66,7 +67,7 @@ export default function SignupScreen({ navigation }) {
         password: password,
       };
 
-      const response = await ApiService.register(userData);
+      const response = await register(userData);
       
       Alert.alert(
         'Success!', 

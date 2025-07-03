@@ -44,6 +44,7 @@ export const AuthProvider = ({ children }) => {
       const userData = await ApiService.getCurrentUser();
       setUser(userData);
       setIsAuthenticated(true);
+      setIsNewUser(false); // Existing user
       return response;
     } catch (error) {
       throw error;
@@ -56,6 +57,7 @@ export const AuthProvider = ({ children }) => {
       const userDetails = await ApiService.getCurrentUser();
       setUser(userDetails);
       setIsAuthenticated(true);
+      setIsNewUser(true); // New user - needs skin assessment
       return response;
     } catch (error) {
       throw error;
@@ -76,8 +78,6 @@ export const AuthProvider = ({ children }) => {
       // Clear stored tokens
       await AsyncStorage.removeItem('userToken');
       await AsyncStorage.removeItem('refreshToken');
-      
-      // Don't navigate manually - GuestGuard will handle it
     }
   };
 
@@ -94,23 +94,42 @@ export const AuthProvider = ({ children }) => {
       await AsyncStorage.removeItem('userToken');
       await AsyncStorage.removeItem('refreshToken');
       
-      // Don't navigate manually - GuestGuard will handle it
-      
     } catch (error) {
       console.error('Delete account error:', error);
       throw error;
     }
   };
 
+  // NEW METHOD: Manually set authentication state
+  const setAuthenticated = async (authStatus) => {
+    setIsAuthenticated(authStatus);
+    if (!authStatus) {
+      // If setting to false, also clear user data and tokens
+      setUser(null);
+      setIsNewUser(false);
+      await AsyncStorage.removeItem('userToken');
+      await AsyncStorage.removeItem('refreshToken');
+      await ApiService.removeAuthToken();
+    }
+  };
+
+  // NEW METHOD: Complete skin assessment
+  const completeSkinAssessment = () => {
+    setIsNewUser(false);
+  };
+
   const value = {
     user,
     isAuthenticated,
     isLoading,
+    isNewUser,
     login,
     register,
     logout,
     checkAuthStatus,
     deleteAccount,
+    setAuthenticated, // NEW: Manual authentication toggle
+    completeSkinAssessment, // NEW: Mark assessment complete
   };
 
   return (
