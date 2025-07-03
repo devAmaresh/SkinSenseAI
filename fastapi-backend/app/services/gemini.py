@@ -16,7 +16,7 @@ genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 
 class GeminiAnalyzer:
     def __init__(self):
-        self.model = genai.GenerativeModel("gemini-1.5-flash")  # Use consistent model version
+        self.model = genai.GenerativeModel("gemini-2.5-flash")
 
     def analyze_product_with_memory(
         self,

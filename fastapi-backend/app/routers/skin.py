@@ -2,7 +2,8 @@ from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form
 from sqlalchemy.orm import Session
 from typing import Optional, List, Dict, Any
 import io
-
+from app.services.gemini import gemini_analyzer
+from app.crud.skin_memory import skin_memory_crud
 from app.core.database import get_db
 from app.api.deps import get_current_active_user
 from app.models.user import User
