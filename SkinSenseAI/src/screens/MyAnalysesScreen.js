@@ -38,20 +38,46 @@ export default function MyAnalysesScreen({ navigation }) {
       
       const transformedAnalyses = data?.analyses?.map(analysis => {
         const result = analysis.metadata?.analysis_result || {};
+        
+        // Process key_ingredients to handle both string and object formats
+        let keyIngredients = result.key_ingredients || [];
+        if (keyIngredients && !Array.isArray(keyIngredients)) {
+          keyIngredients = [keyIngredients]; // Convert to array if it's not one
+        }
+        
+        // Process beneficial_ingredients
+        let beneficialIngredients = result.beneficial_ingredients || [];
+        if (beneficialIngredients && !Array.isArray(beneficialIngredients)) {
+          beneficialIngredients = [beneficialIngredients];
+        }
+        
+        // Process watch_ingredients
+        let watchIngredients = result.watch_ingredients || [];
+        if (watchIngredients && !Array.isArray(watchIngredients)) {
+          watchIngredients = [watchIngredients];
+        }
+        
+        // Process allergen_warnings
+        let allergenWarnings = result.allergen_warnings || [];
+        if (allergenWarnings && !Array.isArray(allergenWarnings)) {
+          allergenWarnings = [allergenWarnings];
+        }
+        
         return {
           id: analysis.id,
           product_name: result.product_name || 'Unknown Product',
           suitability_score: result.suitability_score || 5,
           recommendation: result.personalized_recommendation || analysis.content,
-          warnings: result.allergen_warnings?.join('. ') || null,
+          warnings: Array.isArray(allergenWarnings) ? allergenWarnings.join('. ') : allergenWarnings,
           created_at: analysis.created_at,
           analysis_result: {
-            beneficial_ingredients: result.beneficial_ingredients || [],
-            problematic_ingredients: result.watch_ingredients || [],
-            allergen_warnings: result.allergen_warnings || [],
-            skin_benefits: result.potential_issues || [],
+            beneficial_ingredients: beneficialIngredients,
+            problematic_ingredients: watchIngredients,
+            allergen_warnings: allergenWarnings,
+            skin_benefits: Array.isArray(result.potential_issues) ? result.potential_issues : 
+              (result.potential_issues ? [result.potential_issues] : []),
             usage_tips: result.usage_instructions || null,
-            key_ingredients: result.key_ingredients || [],
+            key_ingredients: keyIngredients,
             brand: result.brand || null,
             product_type: result.product_type || null
           }
@@ -122,39 +148,32 @@ export default function MyAnalysesScreen({ navigation }) {
   };
 
   const confirmDelete = async () => {
-    setDeleteModalVisible(false);
-    
     try {
       if (deleteType === 'single' && analysisToDelete) {
         await ApiService.deleteAnalysis(analysisToDelete.id);
-        setAnalyses(prev => prev.filter(a => a.id !== analysisToDelete.id));
-        Alert.alert('Success', 'Analysis deleted successfully');
-        
+        // Immediately update the state to remove the deleted item
+        setAnalyses(prevAnalyses => prevAnalyses.filter(a => a.id !== analysisToDelete.id));
       } else if (deleteType === 'selected') {
-        // Delete multiple analyses
-        const deletePromises = Array.from(selectedAnalyses).map(id => 
-          ApiService.deleteAnalysis(id)
-        );
-        await Promise.all(deletePromises);
-        setAnalyses(prev => prev.filter(a => !selectedAnalyses.has(a.id)));
-        setSelectedAnalyses(new Set());
-        setIsSelectionMode(false);
-        Alert.alert('Success', `${selectedAnalyses.size} analyses deleted successfully`);
+        // Delete each selected analysis
+        const selectedIds = Array.from(selectedAnalyses);
+        await Promise.all(selectedIds.map(id => ApiService.deleteAnalysis(id)));
         
+        // Immediately update the state to remove all deleted items
+        setAnalyses(prevAnalyses => prevAnalyses.filter(a => !selectedAnalyses.has(a.id)));
+        setSelectedAnalyses(new Set()); // Clear selected analyses
       } else if (deleteType === 'all') {
         await ApiService.deleteAllAnalyses();
-        setAnalyses([]);
-        Alert.alert('Success', 'All analyses deleted successfully');
+        setAnalyses([]); // Clear all analyses immediately
       }
+      
+      setDeleteModalVisible(false);
+      setIsSelectionMode(false);
+      // No need to call loadAnalyses() since we've already updated the state
     } catch (error) {
-      console.error('Delete error:', error);
-      Alert.alert('Error', 'Failed to delete analysis. Please try again.');
+      console.error('Failed to delete:', error);
     }
-    
-    setAnalysisToDelete(null);
-    setDeleteType(null);
   };
-
+  
   const getSuitabilityColor = (score) => {
     if (score >= 8) return '#00ff88';
     if (score >= 6) return '#ffaa00';
@@ -640,6 +659,44 @@ export default function MyAnalysesScreen({ navigation }) {
                         </View>
                       )}
                     </View>
+
+                    {/* Key Ingredients */}
+                    {analysis.analysis_result.key_ingredients &&
+                      analysis.analysis_result.key_ingredients.length > 0 && (
+                        <View className="mb-3">
+                          <Text className="text-gray-400 text-sm font-medium mb-2">
+                            Key Ingredients:
+                          </Text>
+                          <View className="flex-row flex-wrap">
+                            {analysis.analysis_result.key_ingredients
+                              .slice(0, 6)
+                              .map((ingredient, index) => (
+                                <View
+                                  key={index}
+                                  className="rounded-full px-2 py-1 mr-2 mb-1"
+                                  style={{
+                                    backgroundColor: "rgba(0, 245, 255, 0.1)",
+                                    borderWidth: 1,
+                                    borderColor: "rgba(0, 245, 255, 0.2)",
+                                  }}
+                                >
+                                  <Text className="text-cyan-400 text-xs">
+                                    {typeof ingredient === 'string' 
+                                      ? (ingredient.length > 20 ? ingredient.substring(0, 20) + "..." : ingredient)
+                                      : (ingredient.name && ingredient.name.length > 20 
+                                          ? ingredient.name.substring(0, 20) + "..." 
+                                          : ingredient.name || "Unknown")}
+                                  </Text>
+                                </View>
+                              ))}
+                            {analysis.analysis_result.key_ingredients.length > 6 && (
+                              <Text className="text-gray-400 text-xs mt-1">
+                                +{analysis.analysis_result.key_ingredients.length - 6} more
+                              </Text>
+                            )}
+                          </View>
+                        </View>
+                      )}
 
                     {/* View details indicator */}
                     {!isSelectionMode && (

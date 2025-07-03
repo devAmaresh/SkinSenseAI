@@ -147,11 +147,11 @@ class GeminiAnalyzer:
                     }}
                 ],
                 "usage_instructions": "Instructions on how to use the product",
-                "potential_issues": "Any other issues to be aware of"
+                "potential_issues": "[Any other issues to be aware of , issue 2, issue 3]"
             }}
             ```
 
-            Always provide arrays for key_ingredients, allergen_warnings, beneficial_ingredients, and watch_ingredients, even if there is only one item or no items (use empty array in that case).
+            Always provide arrays for key_ingredients, allergen_warnings, beneficial_ingredients,potential_issues and watch_ingredients, even if there is only one item or no items (use empty array in that case).
             """
 
             response = self.model.generate_content([prompt, image])

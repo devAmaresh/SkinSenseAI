@@ -124,7 +124,11 @@ const MemoryCard = ({ memory, onDelete }) => {
       setIsDeleting(true);
       await ApiService.deleteMemoryEntry(memory.id);
       setShowDeleteAlert(false);
-      onDelete?.(memory.id);
+      
+      // Immediately call the onDelete callback to update the parent component's state
+      if (onDelete) {
+        onDelete(memory.id);
+      }
     } catch (error) {
       console.error("Failed to delete memory:", error);
     } finally {
@@ -259,12 +263,19 @@ const MemoryCard = ({ memory, onDelete }) => {
                     </Text>
                   </View>
                   {analysisResult.watch_ingredients.map((ingredient, index) => (
-                    <Text
-                      key={index}
-                      className="text-yellow-300 text-sm mb-1 leading-5"
-                    >
-                      • {ingredient}
-                    </Text>
+                    <View key={index} className="flex-row items-start">
+                      <Ionicons name="warning" size={16} color="#ffaa00" style={{ marginTop: 2 }} />
+                      <View className="ml-2 flex-1">
+                        <Text className="text-yellow-300 text-sm mb-1 leading-5">
+                          • {typeof ingredient === 'string' ? ingredient : ingredient.name}
+                        </Text>
+                        {typeof ingredient !== 'string' && ingredient.reason && (
+                          <Text className="text-gray-400 text-xs mb-2 ml-2">
+                            {ingredient.reason}
+                          </Text>
+                        )}
+                      </View>
+                    </View>
                   ))}
                 </View>
               )}
@@ -290,9 +301,11 @@ const MemoryCard = ({ memory, onDelete }) => {
                           }}
                         >
                           <Text className="text-cyan-400 text-xs">
-                            {ingredient.length > 20
-                              ? ingredient.substring(0, 20) + "..."
-                              : ingredient}
+                            {typeof ingredient === 'string'
+                              ? (ingredient.length > 20 ? ingredient.substring(0, 20) + "..." : ingredient)
+                              : (ingredient && ingredient.name 
+                                  ? (ingredient.name.length > 20 ? ingredient.name.substring(0, 20) + "..." : ingredient.name)
+                                  : "Unknown")}
                           </Text>
                         </View>
                       ))}
@@ -318,8 +331,7 @@ const MemoryCard = ({ memory, onDelete }) => {
             )}
 
             {/* Potential Issues */}
-            {analysisResult.potential_issues &&
-              analysisResult.potential_issues.length > 0 && (
+            {analysisResult.potential_issues && (
                 <View className="mb-3">
                   <View className="flex-row items-center mb-2">
                     <Ionicons
@@ -331,14 +343,20 @@ const MemoryCard = ({ memory, onDelete }) => {
                       Potential Issues:
                     </Text>
                   </View>
-                  {analysisResult.potential_issues.map((issue, index) => (
-                    <Text
-                      key={index}
-                      className="text-red-300 text-sm mb-1 leading-5"
-                    >
-                      • {issue}
+                  {typeof analysisResult.potential_issues === 'string' ? (
+                    <Text className="text-red-300 text-sm mb-1 leading-5">
+                      • {analysisResult.potential_issues}
                     </Text>
-                  ))}
+                  ) : Array.isArray(analysisResult.potential_issues) ? (
+                    analysisResult.potential_issues.map((issue, index) => (
+                      <Text
+                        key={index}
+                        className="text-red-300 text-sm mb-1 leading-5"
+                      >
+                        • {issue}
+                      </Text>
+                    ))
+                  ) : null}
                 </View>
               )}
           </View>
