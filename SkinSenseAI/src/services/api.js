@@ -76,7 +76,6 @@ class ApiService {
     }
 
     const config = {
-      timeout: 300000,
       ...options,
       headers: {
         ...defaultHeaders,
@@ -92,7 +91,7 @@ class ApiService {
       });
 
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 10000);
+      const timeoutId = setTimeout(() => controller.abort(), 300000);
 
       const response = await fetch(url, {
         ...config,
