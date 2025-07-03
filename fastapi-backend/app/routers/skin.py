@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form
 from sqlalchemy.orm import Session
-from typing import Optional, List
+from typing import Optional, List, Dict, Any
 import io
 
 from app.core.database import get_db
@@ -13,9 +13,6 @@ from app.schemas.skin import (
     ProductAnalysisResponse,
     SkinProfileResponse
 )
-from app.services.gemini import gemini_analyzer
-from app.crud import user as user_crud
-from app.crud.skin_memory import skin_memory_crud
 
 router = APIRouter(prefix="/skin", tags=["Skin Analysis"])
 
@@ -25,24 +22,51 @@ async def submit_skin_assessment(
     current_user: User = Depends(get_current_active_user),
     db: Session = Depends(get_db)
 ):
-    """Submit skin type assessment questionnaire."""
+    """Submit comprehensive skin type assessment questionnaire."""
     
     try:
-        # Simple skin type determination based on answers
-        skin_type = determine_skin_type(assessment.answers)
+        # Advanced skin type determination with confidence scoring
+        skin_analysis = determine_skin_type_advanced(assessment.answers)
+        skin_type = skin_analysis["skin_type"]
+        confidence = skin_analysis["confidence"]
+        secondary_characteristics = skin_analysis["secondary_characteristics"]
         
-        # Update user's skin profile using direct database update
+        # Store detailed assessment data
+        assessment_data = {
+            "primary_skin_type": skin_type,
+            "confidence_score": confidence,
+            "secondary_characteristics": secondary_characteristics,
+            "detailed_answers": [
+                {
+                    "question": answer.get("question", ""),
+                    "answer": answer.get("answer", ""),
+                    "category": answer.get("category", ""),
+                    "scores": answer.get("scores", {})
+                } for answer in assessment.answers
+            ] if isinstance(assessment.answers[0], dict) else assessment.answers
+        }
+        
+        # Update user's skin profile
         current_user.skin_type = skin_type
-        current_user.skin_assessment_answers = {str(i): ans for i, ans in enumerate(assessment.answers)}
+        current_user.skin_assessment_answers = assessment_data
         current_user.skin_concerns = assessment.additional_concerns
         
         db.commit()
         db.refresh(current_user)
         
+        # Generate enhanced recommendations
+        recommendations = generate_enhanced_skin_recommendations(
+            skin_type, 
+            secondary_characteristics, 
+            confidence
+        )
+        
         return SkinAssessmentResponse(
             skin_type=skin_type,
-            recommendations=generate_skin_recommendations(skin_type),
-            message="Skin assessment completed successfully!"
+            confidence=confidence,
+            secondary_characteristics=secondary_characteristics,
+            recommendations=recommendations,
+            message=f"Skin assessment completed with {confidence}% confidence!"
         )
         
     except Exception as e:
@@ -534,3 +558,157 @@ def analyze_product_text(
         "beneficial_ingredients": [],
         "usage_instructions": "Follow the product's recommended usage instructions."
     }
+
+def determine_skin_type_advanced(answers: List[Dict[str, Any]]) -> Dict[str, Any]:
+    """Advanced skin type determination with scoring system."""
+    
+    # Initialize scores for each skin type
+    scores = {
+        "normal": 0,
+        "oily": 0,
+        "dry": 0,
+        "combination": 0,
+        "sensitive": 0
+    }
+    
+    # Process each answer
+    for answer_data in answers:
+        if isinstance(answer_data, dict) and "scores" in answer_data:
+            answer_scores = answer_data["scores"]
+            for skin_type, score in answer_scores.items():
+                if skin_type in scores:
+                    scores[skin_type] += score
+    
+    # If answers are simple strings (fallback)
+    if not any(scores.values()) and answers:
+        scores = analyze_text_answers(answers)
+    
+    # Determine primary skin type
+    primary_type = max(scores, key=scores.get)
+    primary_score = scores[primary_type]
+    
+    # Calculate confidence percentage
+    total_possible_score = len(answers) * 3  # Max 3 points per question
+    confidence = min(100, int((primary_score / total_possible_score) * 100)) if total_possible_score > 0 else 50
+    
+    # Determine secondary characteristics
+    secondary_characteristics = []
+    
+    # Sort scores to find secondary traits
+    sorted_scores = sorted(scores.items(), key=lambda x: x[1], reverse=True)
+    
+    for skin_type, score in sorted_scores[1:]:
+        if score >= primary_score * 0.6:  # If secondary score is at least 60% of primary
+            secondary_characteristics.append({
+                "trait": skin_type,
+                "strength": "moderate" if score >= primary_score * 0.8 else "mild"
+            })
+    
+    # Enhanced confidence calculation based on score distribution
+    score_spread = max(scores.values()) - min(scores.values())
+    if score_spread > total_possible_score * 0.3:
+        confidence = min(100, confidence + 10)  # Higher confidence for clear results
+    
+    return {
+        "skin_type": primary_type,
+        "confidence": max(60, confidence),  # Minimum 60% confidence
+        "secondary_characteristics": secondary_characteristics[:2],  # Max 2 secondary traits
+        "detailed_scores": scores
+    }
+
+def analyze_text_answers(answers: List[str]) -> Dict[str, int]:
+    """Fallback analysis for simple text answers."""
+    scores = {
+        "normal": 0,
+        "oily": 0,
+        "dry": 0,
+        "combination": 0,
+        "sensitive": 0
+    }
+    
+    # Keywords for each skin type
+    keywords = {
+        "oily": ["oily", "greasy", "shiny", "large pores", "blackheads", "daily wash", "breakouts frequently"],
+        "dry": ["tight", "dry", "flaky", "uncomfortable", "small pores", "wrinkles", "rarely wash"],
+        "sensitive": ["irritated", "red", "burning", "stinging", "reactions", "painful", "inflamed"],
+        "combination": ["t-zone", "oily nose", "dry cheeks", "mixed", "some areas"],
+        "normal": ["comfortable", "balanced", "tolerates well", "stable", "fresh"]
+    }
+    
+    answer_text = " ".join(answers).lower()
+    
+    for skin_type, type_keywords in keywords.items():
+        for keyword in type_keywords:
+            if keyword in answer_text:
+                scores[skin_type] += 1
+    
+    return scores
+
+def generate_enhanced_skin_recommendations(
+    skin_type: str, 
+    secondary_characteristics: List[Dict], 
+    confidence: int
+) -> List[str]:
+    """Generate enhanced recommendations based on detailed analysis."""
+    
+    base_recommendations = {
+        "normal": [
+            "Maintain your balanced routine with gentle, effective products",
+            "Use a mild cleanser morning and evening",
+            "Apply a lightweight, hydrating moisturizer daily",
+            "Don't forget daily SPF 30+ broad-spectrum sunscreen",
+            "Consider adding vitamin C serum for antioxidant protection"
+        ],
+        "oily": [
+            "Use a gentle foaming cleanser twice daily",
+            "Apply oil-free, non-comedogenic moisturizer",
+            "Incorporate BHA (salicylic acid) 2-3 times per week",
+            "Use clay masks 1-2 times weekly for deep cleansing",
+            "Choose gel-based or water-based products",
+            "Never skip moisturizer - dehydrated skin produces more oil"
+        ],
+        "dry": [
+            "Use a cream-based, hydrating cleanser",
+            "Apply rich moisturizer with ceramides and hyaluronic acid",
+            "Consider facial oils for extra hydration",
+            "Use a humidifier in your bedroom",
+            "Avoid alcohol-based products and harsh scrubs",
+            "Apply moisturizer on damp skin for better absorption"
+        ],
+        "combination": [
+            "Use different products for different face areas",
+            "Apply lightweight moisturizer to oily T-zone",
+            "Use richer moisturizer on dry cheek areas",
+            "Consider using BHA only on oily areas",
+            "Use clay masks only on T-zone",
+            "Balance is key - avoid over-treating any area"
+        ],
+        "sensitive": [
+            "Choose fragrance-free, hypoallergenic products only",
+            "Always patch test new products for 48 hours",
+            "Use gentle, cream-based cleansers",
+            "Avoid physical scrubs and harsh actives",
+            "Look for soothing ingredients like aloe vera and chamomile",
+            "Consider consulting a dermatologist for persistent issues"
+        ]
+    }
+    
+    recommendations = base_recommendations.get(skin_type, base_recommendations["normal"])
+    
+    # Add secondary characteristic recommendations
+    for characteristic in secondary_characteristics:
+        trait = characteristic["trait"]
+        strength = characteristic["strength"]
+        
+        if trait == "sensitive" and strength == "moderate":
+            recommendations.append("Be extra cautious with active ingredients due to sensitive tendencies")
+        elif trait == "dry" and strength == "moderate":
+            recommendations.append("Add extra hydrating steps during dry weather")
+        elif trait == "oily" and strength == "moderate":
+            recommendations.append("Monitor oil production and adjust routine seasonally")
+    
+    # Add confidence-based recommendations
+    if confidence < 75:
+        recommendations.append("Consider retaking the assessment after trying recommended products for 2-3 weeks")
+    
+    return recommendations

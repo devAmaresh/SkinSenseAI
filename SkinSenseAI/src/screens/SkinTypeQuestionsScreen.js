@@ -15,42 +15,268 @@ import ApiService from '../services/api';
 const skinTypeQuestions = [
   {
     id: 1,
-    question: "How does your skin typically feel after cleansing?",
+    question: "How does your skin feel 2-3 hours after cleansing without applying any products?",
+    category: "oiliness",
     options: [
-      { id: 'a', text: 'Tight and dry', icon: 'water-outline' },
-      { id: 'b', text: 'Comfortable and balanced', icon: 'checkmark-circle-outline' },
-      { id: 'c', text: 'Oily, especially in T-zone', icon: 'ellipse-outline' },
-      { id: 'd', text: 'Very oily all over', icon: 'ellipse' }
+      { 
+        id: 'a', 
+        text: 'Very tight, dry, and uncomfortable', 
+        icon: 'contract-outline',
+        scores: { dry: 3, sensitive: 1 }
+      },
+      { 
+        id: 'b', 
+        text: 'Slightly tight but comfortable', 
+        icon: 'water-outline',
+        scores: { dry: 2, normal: 1 }
+      },
+      { 
+        id: 'c', 
+        text: 'Comfortable and balanced', 
+        icon: 'checkmark-circle-outline',
+        scores: { normal: 3 }
+      },
+      { 
+        id: 'd', 
+        text: 'Slightly oily in T-zone only', 
+        icon: 'ellipse-outline',
+        scores: { combination: 3 }
+      },
+      { 
+        id: 'e', 
+        text: 'Oily all over', 
+        icon: 'ellipse',
+        scores: { oily: 3 }
+      }
     ]
   },
   {
     id: 2,
-    question: "How often do you experience breakouts?",
+    question: "How often do you experience breakouts and where?",
+    category: "acne_tendency",
     options: [
-      { id: 'a', text: 'Rarely or never', icon: 'happy-outline' },
-      { id: 'b', text: 'Occasionally', icon: 'sad-outline' },
-      { id: 'c', text: 'Frequently', icon: 'alert-circle-outline' },
-      { id: 'd', text: 'Almost constantly', icon: 'warning-outline' }
+      { 
+        id: 'a', 
+        text: 'Rarely or never', 
+        icon: 'happy-outline',
+        scores: { normal: 2, dry: 2 }
+      },
+      { 
+        id: 'b', 
+        text: 'Occasionally on T-zone (forehead, nose, chin)', 
+        icon: 'alert-outline',
+        scores: { combination: 3, normal: 1 }
+      },
+      { 
+        id: 'c', 
+        text: 'Frequently on T-zone and cheeks', 
+        icon: 'warning-outline',
+        scores: { oily: 2, combination: 1 }
+      },
+      { 
+        id: 'd', 
+        text: 'Almost constantly all over face', 
+        icon: 'close-circle-outline',
+        scores: { oily: 3 }
+      },
+      { 
+        id: 'e', 
+        text: 'Rarely, but when I do they are painful and inflamed', 
+        icon: 'flame-outline',
+        scores: { sensitive: 3 }
+      }
     ]
   },
   {
     id: 3,
-    question: "How does your skin react to new products?",
+    question: "How does your skin typically react to new skincare products?",
+    category: "sensitivity",
     options: [
-      { id: 'a', text: 'Very sensitive, often reacts', icon: 'flame-outline' },
-      { id: 'b', text: 'Sometimes sensitive', icon: 'leaf-outline' },
-      { id: 'c', text: 'Generally tolerant', icon: 'shield-outline' },
-      { id: 'd', text: 'Very tolerant, rarely reacts', icon: 'shield-checkmark-outline' }
+      { 
+        id: 'a', 
+        text: 'Almost always breaks out or gets irritated', 
+        icon: 'alert-circle-outline',
+        scores: { sensitive: 3 }
+      },
+      { 
+        id: 'b', 
+        text: 'Sometimes gets red or stings', 
+        icon: 'warning-outline',
+        scores: { sensitive: 2, dry: 1 }
+      },
+      { 
+        id: 'c', 
+        text: 'Generally tolerates most products well', 
+        icon: 'shield-outline',
+        scores: { normal: 2, combination: 1 }
+      },
+      { 
+        id: 'd', 
+        text: 'Very tolerant, rarely has reactions', 
+        icon: 'shield-checkmark-outline',
+        scores: { oily: 2, normal: 1 }
+      }
     ]
   },
   {
     id: 4,
-    question: "How does your skin look by midday?",
+    question: "How does your skin look and feel by midday without touch-ups?",
+    category: "oil_production",
     options: [
-      { id: 'a', text: 'Still looks fresh', icon: 'sparkles-outline' },
-      { id: 'b', text: 'Slightly shiny in T-zone', icon: 'sunny-outline' },
-      { id: 'c', text: 'Noticeably oily', icon: 'water' },
-      { id: 'd', text: 'Very shiny and oily', icon: 'flashlight-outline' }
+      { 
+        id: 'a', 
+        text: 'Still matte, might feel dry or tight', 
+        icon: 'contract-outline',
+        scores: { dry: 3 }
+      },
+      { 
+        id: 'b', 
+        text: 'Fresh and comfortable', 
+        icon: 'sparkles-outline',
+        scores: { normal: 3 }
+      },
+      { 
+        id: 'c', 
+        text: 'Slightly shiny only in T-zone', 
+        icon: 'partly-sunny-outline',
+        scores: { combination: 3 }
+      },
+      { 
+        id: 'd', 
+        text: 'Noticeably oily and shiny', 
+        icon: 'sunny-outline',
+        scores: { oily: 2 }
+      },
+      { 
+        id: 'e', 
+        text: 'Very greasy and needs blotting', 
+        icon: 'flashlight-outline',
+        scores: { oily: 3 }
+      }
+    ]
+  },
+  {
+    id: 5,
+    question: "How visible are your pores?",
+    category: "pore_size",
+    options: [
+      { 
+        id: 'a', 
+        text: 'Barely visible or very small all over', 
+        icon: 'ellipse-outline',
+        scores: { dry: 2, normal: 1 }
+      },
+      { 
+        id: 'b', 
+        text: 'Small to medium, more visible in T-zone', 
+        icon: 'radio-button-off-outline',
+        scores: { combination: 3, normal: 1 }
+      },
+      { 
+        id: 'c', 
+        text: 'Large and visible, especially on nose and cheeks', 
+        icon: 'radio-button-on-outline',
+        scores: { oily: 3 }
+      }
+    ]
+  },
+  {
+    id: 6,
+    question: "How does your skin respond to environmental factors (weather, AC, heating)?",
+    category: "environmental_sensitivity",
+    options: [
+      { 
+        id: 'a', 
+        text: 'Gets very dry and flaky in cold/dry weather', 
+        icon: 'snow-outline',
+        scores: { dry: 3, sensitive: 1 }
+      },
+      { 
+        id: 'b', 
+        text: 'Becomes red or irritated easily with weather changes', 
+        icon: 'thermometer-outline',
+        scores: { sensitive: 3 }
+      },
+      { 
+        id: 'c', 
+        text: 'Generally stable, minor changes', 
+        icon: 'leaf-outline',
+        scores: { normal: 3 }
+      },
+      { 
+        id: 'd', 
+        text: 'T-zone gets oilier in humidity, cheeks stay normal', 
+        icon: 'cloudy-outline',
+        scores: { combination: 3 }
+      },
+      { 
+        id: 'e', 
+        text: 'Gets significantly oilier in heat/humidity', 
+        icon: 'sunny-outline',
+        scores: { oily: 2 }
+      }
+    ]
+  },
+  {
+    id: 7,
+    question: "How often do you need to wash your hair due to oiliness?",
+    category: "oil_production_indicator",
+    options: [
+      { 
+        id: 'a', 
+        text: 'Every 3-4 days or less frequently', 
+        icon: 'calendar-outline',
+        scores: { dry: 2, normal: 1 }
+      },
+      { 
+        id: 'b', 
+        text: 'Every 2-3 days', 
+        icon: 'time-outline',
+        scores: { normal: 2, combination: 1 }
+      },
+      { 
+        id: 'c', 
+        text: 'Daily', 
+        icon: 'refresh-outline',
+        scores: { oily: 2, combination: 1 }
+      },
+      { 
+        id: 'd', 
+        text: 'More than once daily', 
+        icon: 'repeat-outline',
+        scores: { oily: 3 }
+      }
+    ]
+  },
+  {
+    id: 8,
+    question: "When you pinch your cheek, how quickly does the skin bounce back?",
+    category: "elasticity_hydration",
+    options: [
+      { 
+        id: 'a', 
+        text: 'Immediately snaps back', 
+        icon: 'flash-outline',
+        scores: { normal: 2, oily: 1 }
+      },
+      { 
+        id: 'b', 
+        text: 'Takes a moment to return', 
+        icon: 'hourglass-outline',
+        scores: { combination: 1, dry: 1 }
+      },
+      { 
+        id: 'c', 
+        text: 'Slowly returns to normal', 
+        icon: 'timer-outline',
+        scores: { dry: 3 }
+      },
+      { 
+        id: 'd', 
+        text: 'Becomes red or irritated from pinching', 
+        icon: 'alert-circle-outline',
+        scores: { sensitive: 3 }
+      }
     ]
   }
 ];
@@ -79,7 +305,7 @@ export default function SkinTypeQuestionsScreen({ navigation }) {
 
     if (currentQuestion < skinTypeQuestions.length - 1) {
       setCurrentQuestion(currentQuestion + 1);
-      setSelectedOption(null);
+      setSelectedOption(answers[skinTypeQuestions[currentQuestion + 1].id] || null);
     } else {
       // All questions answered, submit assessment
       submitAssessment(newAnswers);
@@ -90,19 +316,29 @@ export default function SkinTypeQuestionsScreen({ navigation }) {
     setIsSubmitting(true);
     
     try {
-      // Convert answers object to array of strings as expected by backend
+      // Convert answers object to detailed assessment data
       const answersArray = skinTypeQuestions.map(question => {
         const selectedOptionId = finalAnswers[question.id];
         if (selectedOptionId) {
           const selectedOption = question.options.find(opt => opt.id === selectedOptionId);
-          return selectedOption ? selectedOption.text : '';
+          return {
+            question: question.question,
+            answer: selectedOption ? selectedOption.text : '',
+            category: question.category,
+            scores: selectedOption ? selectedOption.scores : {}
+          };
         }
-        return '';
+        return {
+          question: question.question,
+          answer: '',
+          category: question.category,
+          scores: {}
+        };
       });
 
       const assessmentData = {
         answers: answersArray,
-        additional_concerns: "" 
+        additional_concerns: ""
       };
 
       console.log('Submitting assessment data:', assessmentData);
@@ -111,7 +347,7 @@ export default function SkinTypeQuestionsScreen({ navigation }) {
       
       Alert.alert(
         'Assessment Complete! 🎉',
-        `Your skin type has been identified as: ${response.skin_type.toUpperCase()}\n\nYou can now start analyzing products for your skin!`,
+        `Your skin type has been identified as: ${response.skin_type.toUpperCase()}\n\nConfidence: ${response.confidence}%\n\nYou can now start analyzing products for your skin!`,
         [
           {
             text: 'View Results',
@@ -185,10 +421,10 @@ export default function SkinTypeQuestionsScreen({ navigation }) {
             </TouchableOpacity>
 
             <Text className="text-3xl font-bold text-white mb-2">
-              Skin Assessment
+              Advanced Skin Assessment
             </Text>
             <Text className="text-gray-300 text-lg">
-              Help us understand your skin better
+              Comprehensive analysis for accurate skin type detection
             </Text>
           </View>
 
@@ -199,7 +435,7 @@ export default function SkinTypeQuestionsScreen({ navigation }) {
                 Question {currentQuestion + 1} of {skinTypeQuestions.length}
               </Text>
               <Text className="text-gray-300 text-sm">
-                {Math.round(progress)}%
+                {Math.round(progress)}% Complete
               </Text>
             </View>
             <View 
@@ -218,6 +454,15 @@ export default function SkinTypeQuestionsScreen({ navigation }) {
             </View>
           </View>
 
+          {/* Question Category Badge */}
+          <View className="px-6 mb-4">
+            <View className="bg-cyan-400/10 border border-cyan-400/20 rounded-full px-4 py-2 self-start">
+              <Text className="text-cyan-400 text-sm font-medium capitalize">
+                {currentQuestionData.category.replace('_', ' ')}
+              </Text>
+            </View>
+          </View>
+
           {/* Question */}
           <View className="px-6 mb-8">
             <Text className="text-2xl font-semibold text-white leading-relaxed">
@@ -227,7 +472,7 @@ export default function SkinTypeQuestionsScreen({ navigation }) {
 
           {/* Options */}
           <View className="px-6 space-y-4">
-            {currentQuestionData.options.map((option) => (
+            {currentQuestionData.options.map((option, index) => (
               <TouchableOpacity
                 key={option.id}
                 onPress={() => handleOptionSelect(option.id)}
@@ -262,13 +507,17 @@ export default function SkinTypeQuestionsScreen({ navigation }) {
                     color={selectedOption === option.id ? '#00f5ff' : 'white'}
                   />
                 </View>
-                <Text 
-                  className={`text-lg font-medium flex-1 ${
-                    selectedOption === option.id ? 'text-cyan-400' : 'text-white'
-                  }`}
-                >
-                  {option.text}
-                </Text>
+                
+                <View className="flex-1">
+                  <Text 
+                    className={`text-lg font-medium ${
+                      selectedOption === option.id ? 'text-cyan-400' : 'text-white'
+                    }`}
+                  >
+                    {option.text}
+                  </Text>
+                </View>
+                
                 {selectedOption === option.id && (
                   <Ionicons name="checkmark-circle" size={24} color="#00f5ff" />
                 )}
@@ -317,7 +566,7 @@ export default function SkinTypeQuestionsScreen({ navigation }) {
                   {isSubmitting 
                     ? 'Analyzing...' 
                     : currentQuestion === skinTypeQuestions.length - 1 
-                      ? 'Finish' 
+                      ? 'Complete Assessment' 
                       : 'Next'
                   }
                 </Text>

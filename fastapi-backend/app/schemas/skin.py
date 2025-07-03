@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import Optional, Dict, Any, List
+from typing import Optional, Dict, Any, List, Union
 from datetime import datetime
 
 class RoutineStep(BaseModel):
@@ -20,8 +20,8 @@ class RecommendationItem(BaseModel):
 # ============= ASSESSMENT SCHEMAS =============
 
 class SkinAssessmentRequest(BaseModel):
-    answers: List[str]  # Changed from Dict[int, str] to List[str] to match router usage
-    additional_concerns: Optional[str] = None
+    answers: List[Union[str, Dict[str, Any]]]  # Support both simple strings and detailed objects
+    additional_concerns: Optional[str] = ""
 
 class SkinAssessmentCreate(BaseModel):
     answers: Dict[int, str]  # Question ID to answer mapping
@@ -29,11 +29,10 @@ class SkinAssessmentCreate(BaseModel):
 
 class SkinAssessmentResponse(BaseModel):
     skin_type: str
-    assessment_answers: Optional[Dict[str, str]] = None
-    skin_concerns: Optional[List[str]] = None
+    confidence: int
+    secondary_characteristics: List[Dict[str, str]] = []
     recommendations: List[str]
-    routine: Optional[List[RoutineStep]] = None
-    message: Optional[str] = None
+    message: str
 
     class Config:
         from_attributes = True
