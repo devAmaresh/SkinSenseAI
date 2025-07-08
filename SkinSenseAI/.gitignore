@@ -8,8 +8,8 @@ android/
 dist/
 web-build/
 expo-env.d.ts
-# google-services.json
-# GoogleService-Info.plist
+google-services.json
+GoogleService-Info.plist
 
 # Native
 .kotlin/
