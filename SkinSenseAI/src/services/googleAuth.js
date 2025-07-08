@@ -8,6 +8,7 @@ import {
 class GoogleAuthService {
   async signInWithGoogle() {
     try {
+      await GoogleSignin.signOut();
       // Check if your device supports Google Play
       await GoogleSignin.hasPlayServices({
         showPlayServicesUpdateDialog: true,
