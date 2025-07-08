@@ -1,13 +1,13 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import ApiService from '../services/api';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import React, { createContext, useContext, useState, useEffect } from "react";
+import ApiService from "../services/api";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const AuthContext = createContext({});
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 };
@@ -29,7 +29,7 @@ export const AuthProvider = ({ children }) => {
       setUser(userData);
       setIsAuthenticated(true);
     } catch (error) {
-      console.log('User not authenticated:', error);
+      console.log("User not authenticated:", error);
       setUser(null);
       setIsAuthenticated(false);
       await ApiService.removeAuthToken();
@@ -67,49 +67,36 @@ export const AuthProvider = ({ children }) => {
   const logout = async () => {
     try {
       await ApiService.logout();
+      await GoogleAuthService.signOut();
     } catch (error) {
-      console.error('Logout API error:', error);
+      console.error("Logout API error:", error);
     } finally {
       // Clear authentication state
       setUser(null);
       setIsAuthenticated(false);
       setIsNewUser(false);
-      
+
       // Clear stored tokens
-      await AsyncStorage.removeItem('userToken');
-      await AsyncStorage.removeItem('refreshToken');
+      await AsyncStorage.removeItem("userToken");
+      await AsyncStorage.removeItem("refreshToken");
     }
   };
 
   const deleteAccount = async () => {
     try {
       await ApiService.deleteAccount();
-      
+
       // Clear authentication state
       setUser(null);
       setIsAuthenticated(false);
       setIsNewUser(false);
-      
-      // Clear stored tokens
-      await AsyncStorage.removeItem('userToken');
-      await AsyncStorage.removeItem('refreshToken');
-      
-    } catch (error) {
-      console.error('Delete account error:', error);
-      throw error;
-    }
-  };
 
-  // NEW METHOD: Manually set authentication state
-  const setAuthenticated = async (authStatus) => {
-    setIsAuthenticated(authStatus);
-    if (!authStatus) {
-      // If setting to false, also clear user data and tokens
-      setUser(null);
-      setIsNewUser(false);
-      await AsyncStorage.removeItem('userToken');
-      await AsyncStorage.removeItem('refreshToken');
-      await ApiService.removeAuthToken();
+      // Clear stored tokens
+      await AsyncStorage.removeItem("userToken");
+      await AsyncStorage.removeItem("refreshToken");
+    } catch (error) {
+      console.error("Delete account error:", error);
+      throw error;
     }
   };
 
@@ -128,13 +115,11 @@ export const AuthProvider = ({ children }) => {
     logout,
     checkAuthStatus,
     deleteAccount,
-    setAuthenticated, // NEW: Manual authentication toggle
-    completeSkinAssessment, // NEW: Mark assessment complete
+    setIsAuthenticated,
+    completeSkinAssessment,
+    setUser,
+    setIsNewUser,
   };
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

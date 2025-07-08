@@ -1,9 +1,20 @@
-from sqlalchemy import Column, Integer, String, Boolean, DateTime, Text, JSON, ForeignKey, Float
+from sqlalchemy import (
+    Column,
+    Integer,
+    String,
+    Boolean,
+    DateTime,
+    Text,
+    JSON,
+    ForeignKey,
+    Float,
+)
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 from datetime import datetime
 from app.core.database import Base
 from sqlalchemy.sql import func
+
 
 class User(Base):
     __tablename__ = "users"
@@ -12,24 +23,36 @@ class User(Base):
     email = Column(String(255), unique=True, index=True, nullable=False)
     username = Column(String(100), unique=True, index=True, nullable=False)
     full_name = Column(String(255), nullable=False)
-    hashed_password = Column(String(255), nullable=False)
+    hashed_password = Column(String(255), nullable=True)
     is_active = Column(Boolean, default=True)
     is_verified = Column(Boolean, default=False)
     created_at = Column(DateTime, server_default=func.now())
     updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
-    
+    # Google OAuth fields
+    google_id = Column(String, nullable=True, unique=True)
+    auth_provider = Column(String, default="local")  # "local" or "google"
+    profile_picture = Column(String, nullable=True)
     # Skin assessment fields
     skin_type = Column(String(50))
     skin_assessment_answers = Column(JSON)
     skin_concerns = Column(String(500))
-    
+
     # Relationships for skin memory
-    allergens = relationship("UserAllergen", back_populates="user", cascade="all, delete-orphan")
-    skin_issues = relationship("SkinIssue", back_populates="user", cascade="all, delete-orphan")
-    memory_entries = relationship("SkinMemoryEntry", back_populates="user", cascade="all, delete-orphan")
-    
+    allergens = relationship(
+        "UserAllergen", back_populates="user", cascade="all, delete-orphan"
+    )
+    skin_issues = relationship(
+        "SkinIssue", back_populates="user", cascade="all, delete-orphan"
+    )
+    memory_entries = relationship(
+        "SkinMemoryEntry", back_populates="user", cascade="all, delete-orphan"
+    )
+
     # Relationship for chat sessions
-    chat_sessions = relationship("ChatSession", back_populates="user", cascade="all, delete-orphan")
+    chat_sessions = relationship(
+        "ChatSession", back_populates="user", cascade="all, delete-orphan"
+    )
+
 
 class ProductAnalysis(Base):
     __tablename__ = "product_analyses"
@@ -43,9 +66,10 @@ class ProductAnalysis(Base):
     recommendation = Column(Text)
     warnings = Column(JSON)
     created_at = Column(DateTime, server_default=func.now())
-    
+
     # Relationship
     user = relationship("User")
+
 
 class SkinProfile(Base):
     __tablename__ = "skin_profiles"
@@ -58,6 +82,6 @@ class SkinProfile(Base):
     goals = Column(JSON)
     created_at = Column(DateTime, server_default=func.now())
     updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
-    
+
     # Relationship
     user = relationship("User")

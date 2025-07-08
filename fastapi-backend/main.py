@@ -2,13 +2,17 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 import logging
+import os
 
 from app.core.database import Base, engine
 from app.core.dbconnection import init_database, check_db_health, db_manager
 from app.core.config import settings
 from app.models import *  
-
 from app.routers import auth, skin, chat, skin_memory
+
+# Firebase Admin SDK imports
+import firebase_admin
+from firebase_admin import credentials
 
 # Configure logging
 logging.basicConfig(
@@ -23,6 +27,17 @@ async def lifespan(app: FastAPI):
     logger.info("Starting SkinSenseAI Backend...")
     
     try:
+        # Initialize Firebase Admin SDK
+        if not firebase_admin._apps:
+            firebase_key_path = os.path.join(os.path.dirname(__file__), "firebase.json")
+            if os.path.exists(firebase_key_path):
+                cred = credentials.Certificate(firebase_key_path)
+                firebase_admin.initialize_app(cred)
+                logger.info("Firebase Admin SDK initialized successfully")
+            else:
+                logger.error("Firebase service account key not found at: firebase.json")
+                raise FileNotFoundError("Firebase service account key file not found")
+        
         # Initialize database
         init_database()
         logger.info("Database initialized successfully")

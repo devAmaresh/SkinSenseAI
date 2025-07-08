@@ -1,6 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Platform } from "react-native";
-import { LOCAL_IP_ADDRESS } from "@env";
 
 // Get the correct API URL based on environment
 const getApiBaseUrl = () => {
@@ -9,10 +8,9 @@ const getApiBaseUrl = () => {
     if (Platform.OS === "ios") {
       return "http://localhost:8000/api/v1";
     } else if (Platform.OS === "android") {
-      return `http://${LOCAL_IP_ADDRESS}:8000/api/v1`; // Android emulator
+      return `http://${process.env.LOCAL_IP_ADDRESS}:8000/api/v1`;
     } else {
-      // For Expo Go or web
-      return `http://${LOCAL_IP_ADDRESS}:8000/api/v1`; // Replace with your computer's IP
+      return "http://localhost:8000/api/v1";
     }
   } else {
     // Production URL
@@ -204,6 +202,36 @@ class ApiService {
       return response;
     } catch (error) {
       console.error("Login error:", error);
+      throw error;
+    }
+  }
+
+  async loginWithGoogle(googleData) {
+    try {
+      console.log('Sending Google data to backend:', googleData);
+      
+      const response = await this.makeRequest("/auth/google", {
+        method: "POST",
+        body: JSON.stringify({
+          firebaseIdToken: googleData.firebaseIdToken,
+          user_info: {
+            email: googleData.userInfo.email,
+            name: googleData.userInfo.name,
+            photo: googleData.userInfo.photo,
+            given_name: googleData.userInfo.givenName,
+            family_name: googleData.userInfo.familyName,
+            id: googleData.userInfo.id,
+          },
+        }),
+      });
+
+      if (response.access_token) {
+        await this.setAuthToken(response.access_token);
+      }
+
+      return response;
+    } catch (error) {
+      console.error("Google login error:", error);
       throw error;
     }
   }

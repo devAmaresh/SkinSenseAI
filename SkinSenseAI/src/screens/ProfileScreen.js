@@ -6,6 +6,7 @@ import {
   ScrollView,
   Alert,
   Switch,
+  Image,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
@@ -260,12 +261,14 @@ export default function ProfileScreen({ navigation }) {
                   borderColor: "rgba(255, 255, 255, 0.1)",
                 }}
               >
-                <LinearGradient
-                  colors={["#00f5ff", "#0080ff"]}
-                  className="w-12 h-12 rounded-full items-center justify-center"
-                >
-                  <Ionicons name="person" size={24} color="#000" />
-                </LinearGradient>
+                <Image
+                  src={
+                    user?.profile_picture ||
+                    "https://avatar.iran.liara.run/public/42"
+                  }
+                  alt="Profile"
+                  className="w-full h-full rounded-full"
+                />
               </View>
 
               {/* Name with skeleton */}
@@ -432,15 +435,15 @@ export default function ProfileScreen({ navigation }) {
                   </Text>
                 </View>
 
-                  {isDeleting ? (
-                    <ActivityIndicator size="small" color="#ff4444" />
-                  ) : (
-                    <Ionicons
-                      name="chevron-forward"
-                      size={20}
-                      color="rgba(255,68,68,0.6)"
-                    />
-                  )}
+                {isDeleting ? (
+                  <ActivityIndicator size="small" color="#ff4444" />
+                ) : (
+                  <Ionicons
+                    name="chevron-forward"
+                    size={20}
+                    color="rgba(255,68,68,0.6)"
+                  />
+                )}
               </TouchableOpacity>
             </View>
           </View>
@@ -448,14 +451,14 @@ export default function ProfileScreen({ navigation }) {
           {isDeleting && (
             <View
               style={{
-                position: 'absolute',
+                position: "absolute",
                 top: 0,
                 left: 0,
                 right: 0,
                 bottom: 0,
-                backgroundColor: 'rgba(0,0,0,0.5)',
-                justifyContent: 'center',
-                alignItems: 'center',
+                backgroundColor: "rgba(0,0,0,0.5)",
+                justifyContent: "center",
+                alignItems: "center",
                 zIndex: 999,
               }}
             >

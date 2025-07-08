@@ -2,12 +2,14 @@
 
 # dependencies
 node_modules/
-
+android/
 # Expo
 .expo/
 dist/
 web-build/
 expo-env.d.ts
+google-services.json
+GoogleService-Info.plist
 
 # Native
 .kotlin/

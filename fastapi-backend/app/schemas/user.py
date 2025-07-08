@@ -34,6 +34,8 @@ class UserResponse(UserBase):
     skin_assessment_answers: Optional[Any] = None
     skin_concerns: Optional[str]
     created_at: datetime
+    auth_provider: Optional[str] = None
+    profile_picture: Optional[str] = None
 
     class Config:
         from_attributes = True
@@ -46,3 +48,9 @@ class Token(BaseModel):
 
 class TokenData(BaseModel):
     email: Optional[str] = None
+
+class GoogleAuthResponse(BaseModel):
+    access_token: str
+    token_type: str
+    user: UserResponse
+    is_new_user: bool
