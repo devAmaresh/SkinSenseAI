@@ -41,5 +41,6 @@
     "@babel/core": "^7.20.0",
     "tailwindcss": "^3.4.17"
   },
-  "private": true
+  "private": true,
+  "eas-build-pre-install": "echo $GOOGLE_SERVICES_BASE64 | base64 -di > ./google-services.json && echo $IOS_SERVICES_BASE64 | base64 -di > ./GoogleService-Info.plist"
 }
