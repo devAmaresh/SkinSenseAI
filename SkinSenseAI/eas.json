@@ -26,5 +26,10 @@
   },
   "submit": {
     "production": {}
+  },
+  "hooks": {
+    "android": {
+      "pre-install": "./prepare-google-services.sh"
+    }
   }
 }
