@@ -4,3 +4,4 @@
 /fastapi-backend/myvenv/
 __pycache__/
 **/__pycache__/
+/fastapi-backend/firebase.json
