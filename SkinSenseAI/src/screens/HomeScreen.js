@@ -6,12 +6,14 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import ApiService from "../services/api";
 import { useAuth } from "../contexts/AuthContext";
+import { useTheme } from "../contexts/ThemeContext";
 import { Skeleton, TextSkeleton } from "../components/Skeleton";
 
 export default function HomeScreen({ navigation }) {
   const [skinProfile, setSkinProfile] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const { user, logout } = useAuth();
+  const { isDark, colors } = useTheme();
 
   useEffect(() => {
     loadSkinProfile();
@@ -94,10 +96,10 @@ export default function HomeScreen({ navigation }) {
   ];
 
   return (
-    <SafeAreaView className="flex-1" style={{ backgroundColor: "#000000" }}>
-      <StatusBar style="light" />
+    <SafeAreaView className="flex-1" style={{ backgroundColor: colors.background }}>
+      <StatusBar style={isDark ? "light" : "dark"} />
       <LinearGradient
-        colors={["#000000", "#1a1a1a", "#000000"]}
+        colors={[colors.gradientStart, colors.gradientMiddle, colors.gradientEnd]}
         className="flex-1"
       >
         <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
@@ -105,7 +107,7 @@ export default function HomeScreen({ navigation }) {
           <View className="px-6 pt-1 pb-8">
             <View className="flex-row justify-between items-center">
               <View className="flex-1">
-                <Text className="text-gray-400 text-lg">Welcome back!</Text>
+                <Text className="text-lg" style={{ color: colors.textSecondary }}>Welcome back!</Text>
 
                 {/* Name with skeleton */}
                 {isLoading ? (
@@ -116,7 +118,7 @@ export default function HomeScreen({ navigation }) {
                     style={{ marginTop: 4, marginBottom: 8 }}
                   />
                 ) : (
-                  <Text className="text-2xl font-bold text-white">
+                  <Text className="text-2xl font-bold" style={{ color: colors.text }}>
                     {user?.full_name || "User"}
                   </Text>
                 )}
@@ -152,12 +154,12 @@ export default function HomeScreen({ navigation }) {
                   onPress={() => navigation.navigate("Profile")}
                   className="w-12 h-12 rounded-full items-center justify-center"
                   style={{
-                    backgroundColor: "rgba(255, 255, 255, 0.05)",
+                    backgroundColor: colors.surfaceLight,
                     borderWidth: 1,
-                    borderColor: "rgba(255, 255, 255, 0.1)",
+                    borderColor: colors.surfaceBorder,
                   }}
                 >
-                  <Ionicons name="person-outline" size={24} color="white" />
+                  <Ionicons name="person-outline" size={24} color={colors.text} />
                 </TouchableOpacity>
 
                 <TouchableOpacity
@@ -177,7 +179,7 @@ export default function HomeScreen({ navigation }) {
 
           {/* Quick Actions */}
           <View className="px-6 mb-6">
-            <Text className="text-xl font-semibold text-white mb-4">
+            <Text className="text-xl font-semibold mb-4" style={{ color: colors.text }}>
               Quick Actions
             </Text>
             <View className="flex-row space-x-4">
@@ -187,9 +189,9 @@ export default function HomeScreen({ navigation }) {
                   onPress={action.onPress}
                   className="flex-1 rounded-2xl p-4 items-center"
                   style={{
-                    backgroundColor: "rgba(255, 255, 255, 0.03)",
+                    backgroundColor: colors.surfaceLight,
                     borderWidth: 1,
-                    borderColor: "rgba(255, 255, 255, 0.08)",
+                    borderColor: colors.surfaceBorder,
                   }}
                 >
                   <View
@@ -206,7 +208,7 @@ export default function HomeScreen({ navigation }) {
                       color={action.color}
                     />
                   </View>
-                  <Text className="text-gray-300 text-sm font-medium text-center">
+                  <Text className="text-sm font-medium text-center" style={{ color: colors.textSecondary }}>
                     {action.label}
                   </Text>
                 </TouchableOpacity>
@@ -232,17 +234,17 @@ export default function HomeScreen({ navigation }) {
                 <Ionicons name="library" size={24} color="#8B5CF6" />
               </View>
               <View className="flex-1">
-                <Text className="text-white text-lg font-semibold">
+                <Text className="text-lg font-semibold" style={{ color: colors.text }}>
                   Skin Memory
                 </Text>
-                <Text className="text-gray-400 text-sm">
+                <Text className="text-sm" style={{ color: colors.textSecondary }}>
                   Track allergens, issues & insights
                 </Text>
               </View>
               <Ionicons
                 name="chevron-forward"
                 size={20}
-                color="rgba(255,255,255,0.4)"
+                color={colors.textTertiary}
               />
             </View>
           </TouchableOpacity>
@@ -267,7 +269,7 @@ export default function HomeScreen({ navigation }) {
                     Complete Your Skin Assessment
                   </Text>
                 </View>
-                <Text className="text-gray-300 mb-3">
+                <Text className="mb-3" style={{ color: colors.textSecondary }}>
                   Take our quick assessment to get personalized product
                   recommendations.
                 </Text>
@@ -309,10 +311,10 @@ export default function HomeScreen({ navigation }) {
                       Allergens
                     </Text>
                   </View>
-                  <Text className="text-white text-2xl font-bold">
+                  <Text className="text-2xl font-bold" style={{ color: colors.text }}>
                     {skinProfile.allergens?.length || 0}
                   </Text>
-                  <Text className="text-gray-400 text-xs">Known allergies</Text>
+                  <Text className="text-xs" style={{ color: colors.textSecondary }}>Known allergies</Text>
                 </View>
 
                 {/* Skin Issues Summary */}
@@ -334,12 +336,12 @@ export default function HomeScreen({ navigation }) {
                       Active Issues
                     </Text>
                   </View>
-                  <Text className="text-white text-2xl font-bold">
+                  <Text className="text-2xl font-bold" style={{ color: colors.text }}>
                     {skinProfile.skin_issues?.filter(
                       (issue) => issue.status === "active"
                     ).length || 0}
                   </Text>
-                  <Text className="text-gray-400 text-xs">
+                  <Text className="text-xs" style={{ color: colors.textSecondary }}>
                     Current concerns
                   </Text>
                 </View>
@@ -371,7 +373,7 @@ export default function HomeScreen({ navigation }) {
                         key={index}
                         className="flex-row items-center justify-between"
                       >
-                        <Text className="text-white flex-1">
+                        <Text className="flex-1" style={{ color: colors.text }}>
                           {allergen.ingredient_name}
                         </Text>
                         <View
