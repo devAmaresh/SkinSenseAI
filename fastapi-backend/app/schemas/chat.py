@@ -5,11 +5,13 @@ from uuid import UUID
 
 class ChatMessageCreate(BaseModel):
     message: str
+    image_url: Optional[str] = None
 
 class ChatMessageResponse(BaseModel):
     id: UUID
     message: str
     is_user: bool
+    image_url: Optional[str] = None
     created_at: datetime
 
     class Config:

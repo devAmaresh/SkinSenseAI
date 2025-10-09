@@ -481,14 +481,34 @@ class ApiService {
     }
   }
 
-  async sendChatMessage(sessionId, message) {
+  async sendChatMessage(sessionId, message, imageFile = null) {
     try {
-      return await this.makeRequest(`/chat/sessions/${sessionId}/messages`, {
-        method: "POST",
-        body: JSON.stringify({
-          message: message,
-        }),
+      const formData = new FormData();
+      formData.append('message', message);
+      
+      if (imageFile) {
+        formData.append('image', {
+          uri: imageFile.uri,
+          type: imageFile.mimeType || 'image/jpeg',
+          name: imageFile.fileName || 'chat_image.jpg',
+        });
+      }
+
+      const response = await fetch(`${this.baseURL}/chat/sessions/${sessionId}/messages`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${await this.getAuthToken()}`,
+          // Don't set Content-Type for FormData, let the browser set it with boundary
+        },
+        body: formData,
       });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || `HTTP error! status: ${response.status}`);
+      }
+
+      return await response.json();
     } catch (error) {
       console.error("Send chat message error:", error);
       throw error;

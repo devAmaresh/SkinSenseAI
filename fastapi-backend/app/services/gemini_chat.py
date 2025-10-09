@@ -75,7 +75,8 @@ Please provide personalized skincare advice based on this information.
         user_message: str, 
         skin_type: str = None, 
         skin_concerns: str = None, 
-        conversation_history: List = None
+        conversation_history: List = None,
+        image_data: bytes = None
     ) -> str:
         """Generate AI chat response - this method is called by the router"""
         try:
@@ -110,14 +111,24 @@ Guidelines:
 4. Always prioritize safety and suggest consulting dermatologists for serious issues
 5. Keep responses concise but informative
 6. If you detect new skin issues or concerns, acknowledge them appropriately
+7. If an image is provided, analyze it in the context of skincare (product, skin condition, etc.)
 
 Current message from user: {user_message}
+{"The user has also shared an image for analysis." if image_data else ""}
 
 Please provide a helpful response:
 """
             
-            # Generate AI response
-            response = self.model.generate_content(system_prompt)
+            # Generate AI response with or without image
+            if image_data:
+                # Convert bytes to PIL Image
+                from PIL import Image
+                import io
+                image = Image.open(io.BytesIO(image_data))
+                response = self.model.generate_content([system_prompt, image])
+            else:
+                response = self.model.generate_content(system_prompt)
+            
             return response.text
             
         except Exception as e:
