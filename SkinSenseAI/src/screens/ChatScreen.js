@@ -7,8 +7,10 @@ import {
   KeyboardAvoidingView,
   Platform,
   Alert,
+  Image,
 } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
+import * as ImagePicker from "expo-image-picker";
 
 import { LinearGradient } from "expo-linear-gradient";
 import { StatusBar } from "expo-status-bar";
@@ -21,6 +23,7 @@ export default function ChatScreen({ navigation, route }) {
   const [inputMessage, setInputMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [sessionId, setSessionId] = useState(null);
+  const [selectedImage, setSelectedImage] = useState(null);
   const scrollViewRef = useRef();
   const textInputRef = useRef();
 
@@ -69,24 +72,28 @@ export default function ChatScreen({ navigation, route }) {
   };
 
   const sendMessage = async () => {
-    if (!inputMessage.trim() || !sessionId || isLoading) return;
+    if ((!inputMessage.trim() && !selectedImage) || !sessionId || isLoading) return;
 
     const userMessage = {
       id: `temp-${Date.now()}`,
-      message: inputMessage.trim(),
+      message: inputMessage.trim() || "📷 Shared an image",
       is_user: true,
+      image_url: selectedImage?.uri,
       created_at: new Date().toISOString(),
     };
 
     setMessages((prev) => [...prev, userMessage]);
-    const messageToSend = inputMessage.trim();
+    const messageToSend = inputMessage.trim() || "What can you tell me about this image?";
+    const imageToSend = selectedImage;
     setInputMessage("");
+    setSelectedImage(null);
     setIsLoading(true);
 
     try {
       const aiResponse = await ApiService.sendChatMessage(
         sessionId,
-        messageToSend
+        messageToSend,
+        imageToSend
       );
 
       setMessages((prev) => [
@@ -104,6 +111,37 @@ export default function ChatScreen({ navigation, route }) {
       Alert.alert("Error", "Failed to send message. Please try again.");
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const pickImage = async () => {
+    try {
+      // Request permission
+      const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      
+      if (permissionResult.granted === false) {
+        Alert.alert("Permission Required", "Please allow access to your photo library to upload images.");
+        return;
+      }
+
+      // Pick image
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 0.8,
+      });
+
+      if (!result.canceled && result.assets && result.assets.length > 0) {
+        setSelectedImage({
+          uri: result.assets[0].uri,
+          mimeType: result.assets[0].mimeType || 'image/jpeg',
+          fileName: result.assets[0].fileName || `image_${Date.now()}.jpg`,
+        });
+      }
+    } catch (error) {
+      console.error("Image picker error:", error);
+      Alert.alert("Error", "Failed to pick image. Please try again.");
     }
   };
 
@@ -147,6 +185,13 @@ export default function ChatScreen({ navigation, route }) {
               : "rgba(255, 255, 255, 0.08)",
           }}
         >
+          {message.image_url && (
+            <Image
+              source={{ uri: message.image_url }}
+              className="w-full h-48 rounded-lg mb-2"
+              resizeMode="cover"
+            />
+          )}
           <Text
             className={`text-base leading-relaxed ${
               isUser ? "text-cyan-100" : "text-gray-100"
@@ -288,7 +333,54 @@ export default function ChatScreen({ navigation, route }) {
               borderTopColor: "rgba(255, 255, 255, 0.1)",
             }}
           >
+            {/* Image Preview */}
+            {selectedImage && (
+              <View className="mb-3 flex-row items-center">
+                <View
+                  className="rounded-xl overflow-hidden mr-2"
+                  style={{
+                    borderWidth: 1,
+                    borderColor: "rgba(0, 245, 255, 0.3)",
+                  }}
+                >
+                  <Image
+                    source={{ uri: selectedImage.uri }}
+                    className="w-16 h-16"
+                    resizeMode="cover"
+                  />
+                </View>
+                <Text className="text-gray-400 text-sm flex-1">
+                  Image selected
+                </Text>
+                <TouchableOpacity
+                  onPress={() => setSelectedImage(null)}
+                  className="w-8 h-8 rounded-full items-center justify-center"
+                  style={{
+                    backgroundColor: "rgba(255, 255, 255, 0.05)",
+                    borderWidth: 1,
+                    borderColor: "rgba(255, 255, 255, 0.1)",
+                  }}
+                >
+                  <Ionicons name="close" size={16} color="white" />
+                </TouchableOpacity>
+              </View>
+            )}
+            
             <View className="flex-row items-end space-x-3">
+              <TouchableOpacity
+                onPress={pickImage}
+                disabled={isLoading}
+                className="w-12 h-12 rounded-full items-center justify-center"
+                style={{
+                  backgroundColor: "rgba(0, 245, 255, 0.1)",
+                  borderWidth: 1,
+                  borderColor: "rgba(0, 245, 255, 0.2)",
+                  opacity: isLoading ? 0.5 : 1,
+                }}
+              >
+                <Ionicons name="image-outline" size={20} color="#00f5ff" />
+              </TouchableOpacity>
+              
               <View
                 className="flex-1 rounded-2xl px-4 py-3"
                 style={{
@@ -311,10 +403,10 @@ export default function ChatScreen({ navigation, route }) {
 
               <TouchableOpacity
                 onPress={sendMessage}
-                disabled={!inputMessage.trim() || isLoading}
+                disabled={(!inputMessage.trim() && !selectedImage) || isLoading}
                 className="w-12 h-12 rounded-full items-center justify-center overflow-hidden"
                 style={{
-                  opacity: !inputMessage.trim() || isLoading ? 0.5 : 1,
+                  opacity: (!inputMessage.trim() && !selectedImage) || isLoading ? 0.5 : 1,
                 }}
               >
                 <LinearGradient

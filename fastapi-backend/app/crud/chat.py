@@ -45,7 +45,8 @@ def add_message_to_session(
     session_id: UUID, 
     message: str, 
     is_user: bool,
-    user_id: int
+    user_id: int,
+    image_url: Optional[str] = None
 ) -> ChatMessage:
     """Add a message to a chat session."""
     # Verify session belongs to user
@@ -56,7 +57,8 @@ def add_message_to_session(
     chat_message = ChatMessage(
         session_id=session_id,
         message=message,
-        is_user=is_user
+        is_user=is_user,
+        image_url=image_url
     )
     db.add(chat_message)
     

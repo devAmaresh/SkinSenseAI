@@ -27,6 +27,7 @@ class ChatMessage(Base):
     session_id = Column(UUID(as_uuid=True), ForeignKey("chat_sessions.id"), nullable=False)
     message = Column(Text, nullable=False)
     is_user = Column(Boolean, nullable=False)  # True for user, False for AI
+    image_url = Column(String(500), nullable=True)  # Optional image attachment
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     # Relationships

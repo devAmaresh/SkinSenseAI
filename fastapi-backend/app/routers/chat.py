@@ -1,7 +1,8 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from uuid import UUID
+import base64
 
 from app.core.database import get_db
 from app.schemas.chat import (
@@ -95,6 +96,7 @@ async def get_chat_session_detail(
             id=msg.id,
             message=msg.message,
             is_user=msg.is_user,
+            image_url=msg.image_url,
             created_at=msg.created_at
         )
         for msg in session.messages
@@ -112,11 +114,12 @@ async def get_chat_session_detail(
 @router.post("/sessions/{session_id}/messages", response_model=ChatMessageResponse)
 async def send_message(
     session_id: UUID,
-    message_data: ChatMessageCreate,
+    message: str = Form(...),
+    image: Optional[UploadFile] = File(None),
     current_user: User = Depends(get_current_active_user),
     db: Session = Depends(get_db)
 ):
-    """Send a message and get AI response."""
+    """Send a message and get AI response. Supports optional image upload."""
     
     try:
         # Verify session exists
@@ -124,13 +127,23 @@ async def send_message(
         if not session:
             raise HTTPException(status_code=404, detail="Chat session not found")
         
-        # Add user message
+        # Process image if provided
+        image_data = None
+        image_url = None
+        if image:
+            image_data = await image.read()
+            # Store image as base64 data URL for simplicity
+            image_base64 = base64.b64encode(image_data).decode('utf-8')
+            image_url = f"data:{image.content_type};base64,{image_base64}"
+        
+        # Add user message with image
         user_message = add_message_to_session(
             db=db,
             session_id=session_id,
-            message=message_data.message,
+            message=message,
             is_user=True,
-            user_id=current_user.id
+            user_id=current_user.id,
+            image_url=image_url
         )
         
         # Get conversation context
@@ -159,13 +172,14 @@ async def send_message(
         
         enhanced_skin_concerns = f"{current_user.skin_concerns or ''}\n{allergen_context}\n{issue_context}".strip()
         
-        # Generate AI response using Gemini with enhanced context
+        # Generate AI response using Gemini with enhanced context and optional image
         gemini_service = GeminiChatService()
         ai_response = gemini_service.generate_chat_response(
-            user_message=message_data.message,
+            user_message=message,
             skin_type=current_user.skin_type,
             skin_concerns=enhanced_skin_concerns,
-            conversation_history=recent_messages
+            conversation_history=recent_messages,
+            image_data=image_data
         )
         
         # Add AI response
@@ -180,13 +194,14 @@ async def send_message(
         # Extract insights and update skin memory
         gemini_service = GeminiChatService()
         await gemini_service._extract_and_update_memory(
-            db, current_user.id, message_data.message, ai_response
+            db, current_user.id, message, ai_response
         )
         
         return ChatMessageResponse(
             id=ai_message.id,
             message=ai_message.message,
             is_user=ai_message.is_user,
+            image_url=ai_message.image_url,
             created_at=ai_message.created_at
         )
         
