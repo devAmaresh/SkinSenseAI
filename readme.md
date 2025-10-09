@@ -47,6 +47,8 @@
 - **Contextual Advice**: Personalized recommendations based on your skin profile
 - **Product Suggestions**: Smart recommendations for your specific needs
 - **Memory Integration**: AI remembers your history for better advice
+- **Image Upload Support**: Share product photos or skin selfies for visual analysis
+- **Multi-Modal Analysis**: Combine text and images for comprehensive skincare advice
 
 ### 📊 **Skin Memory System**
 - **Issue Tracking**: Monitor skin problems and their progress
@@ -260,6 +262,10 @@ PUT /api/v1/skin/profile
 POST /api/v1/chat/sessions
 GET /api/v1/chat/sessions
 POST /api/v1/chat/{session_id}/messages
+  # Supports multipart/form-data with optional image upload
+  # Parameters:
+  #   - message: string (required)
+  #   - image: file (optional)
 ```
 
 ### Response Format
