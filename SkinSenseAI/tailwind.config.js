@@ -2,6 +2,7 @@
 module.exports = {
   content: ["./App.{js,jsx,ts,tsx}", "./src/**/*.{js,jsx,ts,tsx}"],
   presets: [require("nativewind/preset")],
+  darkMode: 'class',
   theme: {
     extend: {
       colors: {
@@ -14,7 +15,11 @@ module.exports = {
         secondary: {
           500: '#764ba2',
           600: '#6b46c1',
-        }
+        },
+        // Theme colors
+        'theme-bg': '#000000',
+        'theme-surface': '#1a1a1a',
+        'theme-text': '#FFFFFF',
       }
     },
   },

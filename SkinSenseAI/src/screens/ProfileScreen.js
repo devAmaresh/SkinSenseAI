@@ -15,10 +15,12 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import ApiService from "../services/api";
 import { Skeleton, TextSkeleton } from "../components/Skeleton";
 import { useAuth } from "../contexts/AuthContext";
+import { useTheme } from "../contexts/ThemeContext";
 import { ActivityIndicator } from "react-native-paper";
 
 export default function ProfileScreen({ navigation }) {
   const { logout, deleteAccount } = useAuth();
+  const { themeMode, setTheme, isDark, colors } = useTheme();
   const [user, setUser] = useState(null);
   const [skinProfile, setSkinProfile] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -186,6 +188,48 @@ export default function ProfileScreen({ navigation }) {
       title: "Preferences",
       items: [
         {
+          icon: "contrast-outline",
+          label: "Appearance",
+          component: (
+            <View className="flex-row items-center">
+              <TouchableOpacity
+                onPress={() => setTheme('light')}
+                className="px-3 py-1 rounded-lg mr-2"
+                style={{
+                  backgroundColor: themeMode === 'light' ? 'rgba(0, 245, 255, 0.2)' : 'rgba(255, 255, 255, 0.05)',
+                  borderWidth: 1,
+                  borderColor: themeMode === 'light' ? '#00f5ff' : 'rgba(255, 255, 255, 0.1)',
+                }}
+              >
+                <Text style={{ color: themeMode === 'light' ? '#00f5ff' : '#888888' }}>Light</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => setTheme('dark')}
+                className="px-3 py-1 rounded-lg mr-2"
+                style={{
+                  backgroundColor: themeMode === 'dark' ? 'rgba(0, 245, 255, 0.2)' : 'rgba(255, 255, 255, 0.05)',
+                  borderWidth: 1,
+                  borderColor: themeMode === 'dark' ? '#00f5ff' : 'rgba(255, 255, 255, 0.1)',
+                }}
+              >
+                <Text style={{ color: themeMode === 'dark' ? '#00f5ff' : '#888888' }}>Dark</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => setTheme('system')}
+                className="px-3 py-1 rounded-lg"
+                style={{
+                  backgroundColor: themeMode === 'system' ? 'rgba(0, 245, 255, 0.2)' : 'rgba(255, 255, 255, 0.05)',
+                  borderWidth: 1,
+                  borderColor: themeMode === 'system' ? '#00f5ff' : 'rgba(255, 255, 255, 0.1)',
+                }}
+              >
+                <Text style={{ color: themeMode === 'system' ? '#00f5ff' : '#888888' }}>Auto</Text>
+              </TouchableOpacity>
+            </View>
+          ),
+          showArrow: false,
+        },
+        {
           icon: "notifications-outline",
           label: "Push Notifications",
           component: (
@@ -216,10 +260,10 @@ export default function ProfileScreen({ navigation }) {
   ];
 
   return (
-    <SafeAreaView className="flex-1" style={{ backgroundColor: "#000000" }}>
-      <StatusBar style="light" />
+    <SafeAreaView className="flex-1" style={{ backgroundColor: colors.background }}>
+      <StatusBar style={isDark ? "light" : "dark"} />
       <LinearGradient
-        colors={["#000000", "#1a1a1a", "#000000"]}
+        colors={[colors.gradientStart, colors.gradientMiddle, colors.gradientEnd]}
         className="flex-1"
       >
         <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
@@ -230,12 +274,12 @@ export default function ProfileScreen({ navigation }) {
                 onPress={() => navigation.navigate("Home")}
                 className="w-12 h-12 rounded-full items-center justify-center"
                 style={{
-                  backgroundColor: "rgba(255, 255, 255, 0.05)",
+                  backgroundColor: colors.surfaceLight,
                   borderWidth: 1,
-                  borderColor: "rgba(255, 255, 255, 0.1)",
+                  borderColor: colors.surfaceBorder,
                 }}
               >
-                <Ionicons name="arrow-back" size={24} color="white" />
+                <Ionicons name="arrow-back" size={24} color={colors.text} />
               </TouchableOpacity>
 
               <TouchableOpacity
@@ -256,9 +300,9 @@ export default function ProfileScreen({ navigation }) {
               <View
                 className="w-24 h-24 rounded-full items-center justify-center mb-4"
                 style={{
-                  backgroundColor: "rgba(255, 255, 255, 0.05)",
+                  backgroundColor: colors.surfaceLight,
                   borderWidth: 1,
-                  borderColor: "rgba(255, 255, 255, 0.1)",
+                  borderColor: colors.surfaceBorder,
                 }}
               >
                 <Image
@@ -284,10 +328,10 @@ export default function ProfileScreen({ navigation }) {
                 </View>
               ) : (
                 <>
-                  <Text className="text-2xl font-bold text-white mb-1">
+                  <Text className="text-2xl font-bold mb-1" style={{ color: colors.text }}>
                     {user?.full_name || "User"}
                   </Text>
-                  <Text className="text-gray-400 text-base">{user?.email}</Text>
+                  <Text className="text-base" style={{ color: colors.textSecondary }}>{user?.email}</Text>
                 </>
               )}
 
@@ -322,16 +366,16 @@ export default function ProfileScreen({ navigation }) {
           <View className="px-6 space-y-6">
             {profileSections.map((section, sectionIndex) => (
               <View key={sectionIndex} className="space-y-3">
-                <Text className="text-lg font-semibold text-white mb-2">
+                <Text className="text-lg font-semibold mb-2" style={{ color: colors.text }}>
                   {section.title}
                 </Text>
 
                 <View
                   className="rounded-2xl overflow-hidden"
                   style={{
-                    backgroundColor: "rgba(255, 255, 255, 0.03)",
+                    backgroundColor: colors.surfaceLight,
                     borderWidth: 1,
-                    borderColor: "rgba(255, 255, 255, 0.08)",
+                    borderColor: colors.surfaceBorder,
                   }}
                 >
                   {section.items.map((item, itemIndex) => (
@@ -343,7 +387,7 @@ export default function ProfileScreen({ navigation }) {
                         itemIndex < section.items.length - 1 ? "border-b" : ""
                       }`}
                       style={{
-                        borderBottomColor: "rgba(255, 255, 255, 0.05)",
+                        borderBottomColor: colors.surfaceBorder,
                         borderBottomWidth:
                           itemIndex < section.items.length - 1 ? 1 : 0,
                       }}
@@ -360,7 +404,7 @@ export default function ProfileScreen({ navigation }) {
                       </View>
 
                       <View className="flex-1">
-                        <Text className="text-white font-medium">
+                        <Text className="font-medium" style={{ color: colors.text }}>
                           {item.label}
                         </Text>
                         {item.value && (
@@ -375,7 +419,7 @@ export default function ProfileScreen({ navigation }) {
                                 style={{ marginTop: 4 }}
                               />
                             ) : (
-                              <Text className="text-gray-400 text-sm mt-1">
+                              <Text className="text-sm mt-1" style={{ color: colors.textSecondary }}>
                                 {item.value}
                               </Text>
                             )}
@@ -389,7 +433,7 @@ export default function ProfileScreen({ navigation }) {
                         <Ionicons
                           name="chevron-forward"
                           size={20}
-                          color="rgba(255,255,255,0.4)"
+                          color={colors.textTertiary}
                         />
                       )}
                     </TouchableOpacity>

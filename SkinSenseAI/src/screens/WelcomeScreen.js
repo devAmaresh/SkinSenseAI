@@ -9,15 +9,18 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { StatusBar } from 'expo-status-bar';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { useTheme } from '../contexts/ThemeContext';
 
 const { width, height } = Dimensions.get('window');
 
 export default function WelcomeScreen({ navigation }) {
+  const { isDark, colors } = useTheme();
+  
   return (
     <SafeAreaView className="flex-1">
-      <StatusBar style="light" />
+      <StatusBar style={isDark ? "light" : "dark"} />
       <LinearGradient
-        colors={['#000000', '#1a1a1a', '#000000']}
+        colors={[colors.gradientStart, colors.gradientMiddle, colors.gradientEnd]}
         className="flex-1"
       >
         <View className="flex-1 justify-between px-8 py-12">
@@ -26,9 +29,9 @@ export default function WelcomeScreen({ navigation }) {
             <View 
               className="w-32 h-32 rounded-full items-center justify-center mb-8"
               style={{
-                backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                backgroundColor: colors.surfaceLight,
                 borderWidth: 1,
-                borderColor: 'rgba(255, 255, 255, 0.1)',
+                borderColor: colors.surfaceBorder,
                 backdropFilter: 'blur(20px)',
               }}
             >
@@ -36,11 +39,11 @@ export default function WelcomeScreen({ navigation }) {
                 colors={['#00f5ff', '#0080ff', '#8000ff']}
                 className="w-16 h-16 rounded-full items-center justify-center"
               >
-                <Ionicons name="scan-outline" size={32} color="#000" />
+                <Ionicons name="scan-outline" size={32} color={isDark ? "#000" : "#FFF"} />
               </LinearGradient>
             </View>
             
-            <Text className="text-5xl font-bold text-white text-center mb-4">
+            <Text className="text-5xl font-bold text-center mb-4" style={{ color: colors.text }}>
               SkinSense
               <Text style={{ 
                 background: 'linear-gradient(45deg, #00f5ff, #0080ff, #8000ff)',
@@ -49,7 +52,7 @@ export default function WelcomeScreen({ navigation }) {
               }}>AI</Text>
             </Text>
             
-            <Text className="text-xl text-gray-300 text-center mb-8 leading-relaxed">
+            <Text className="text-xl text-center mb-8 leading-relaxed" style={{ color: colors.textSecondary }}>
               Your AI-powered skincare companion for{'\n'}personalized beauty solutions
             </Text>
 
@@ -64,9 +67,9 @@ export default function WelcomeScreen({ navigation }) {
                   key={index}
                   className="flex-row items-center p-3 rounded-2xl"
                   style={{
-                    backgroundColor: 'rgba(255, 255, 255, 0.03)',
+                    backgroundColor: colors.surfaceLight,
                     borderWidth: 1,
-                    borderColor: 'rgba(255, 255, 255, 0.08)',
+                    borderColor: colors.surfaceBorder,
                   }}
                 >
                   <View 
@@ -79,7 +82,7 @@ export default function WelcomeScreen({ navigation }) {
                   >
                     <Ionicons name={feature.icon} size={18} color="#00f5ff" />
                   </View>
-                  <Text className="text-gray-200 text-base">{feature.text}</Text>
+                  <Text className="text-base" style={{ color: colors.text }}>{feature.text}</Text>
                 </View>
               ))}
             </View>
@@ -109,22 +112,22 @@ export default function WelcomeScreen({ navigation }) {
               onPress={() => navigation.navigate('Login')}
               className="rounded-2xl py-4"
               style={{
-                backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                backgroundColor: colors.surfaceLight,
                 borderWidth: 1,
-                borderColor: 'rgba(255, 255, 255, 0.25)',
+                borderColor: colors.surfaceBorder,
               }}
             >
-              <Text className="text-white text-center text-lg font-semibold">
+              <Text className="text-center text-lg font-semibold" style={{ color: colors.text }}>
                 I already have an account
               </Text>
             </TouchableOpacity>
 
             {/* Terms */}
-            <Text className="text-gray-400 text-center text-sm mt-4">
+            <Text className="text-center text-sm mt-4" style={{ color: colors.textSecondary }}>
               By continuing, you agree to our{' '}
-              <Text className="text-gray-300 font-medium">Terms of Service</Text>
+              <Text className="font-medium" style={{ color: colors.textSecondary }}>Terms of Service</Text>
               {' '}and{' '}
-              <Text className="text-gray-300 font-medium">Privacy Policy</Text>
+              <Text className="font-medium" style={{ color: colors.textSecondary }}>Privacy Policy</Text>
             </Text>
           </View>
         </View>
